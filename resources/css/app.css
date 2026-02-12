@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.menu {
+    @apply block px-4 py-2 rounded text-sm hover:bg-indigo-600;
+}
+
+.card {
+    @apply bg-white p-6 rounded shadow text-center;
+}
+
+.menu-active {
+    @apply bg-indigo-600;
+}
