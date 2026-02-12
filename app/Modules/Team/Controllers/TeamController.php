@@ -28,7 +28,6 @@ class TeamController extends Controller
 
         return view('teams.index', compact('teams'));
     }
-
     /*
     |--------------------------------------------------------------------------
     | Create Form
@@ -36,14 +35,14 @@ class TeamController extends Controller
     */
     public function create()
     {
-        $this->authorize('create', Team::class);
-        $users = User::whereHas('role', function ($q) {
+        $employees = User::whereHas('role', function ($q) {
             $q->where('name', 'employee');
-        })->get();
+        })
+            ->whereNull('team_id') // only unassigned employees
+            ->get(['id', 'name']);
 
-        return view('teams.create', compact('users'));
+        return view('teams.create', compact('employees'));
     }
-
     /*
     |--------------------------------------------------------------------------
     | Store
@@ -51,14 +50,18 @@ class TeamController extends Controller
     */
     public function store(StoreTeamRequest $request)
     {
+        $this->authorize('create', Team::class);
 
-        $team = $this->teamService->create($request->validated());
+        $this->teamService->saveTeamWithMembers(
+            null,
+            $request->validated(),
+            $request->members ?? []
+        );
 
         return redirect()
             ->route('teams.index')
             ->with('success', 'Team created successfully');
     }
-
     /*
     |--------------------------------------------------------------------------
     | Edit Form
@@ -67,13 +70,26 @@ class TeamController extends Controller
     public function edit(Team $team)
     {
         $this->authorize('update', $team);
-        $users = User::whereHas('role', function ($q) {
-            $q->where('name', 'employee');
-        })->get();
 
-        return view('teams.edit', compact('team', 'users'));
+        $allEmployees = User::whereHas('role', function ($q) {
+            $q->where('name', 'employee')
+                ->orWhere('name', 'team_lead');
+        })->get(['id', 'name', 'team_id']);
+
+        $selectedMembers = $allEmployees
+            ->where('team_id', $team->id)
+            ->values();
+
+        $availableEmployees = $allEmployees
+            ->whereNull('team_id')
+            ->values();
+
+        return view('teams.edit', [
+            'team' => $team,
+            'availableEmployees' => $availableEmployees,
+            'selectedMembers' => $selectedMembers,
+        ]);
     }
-
     /*
     |--------------------------------------------------------------------------
     | Update
@@ -82,15 +98,17 @@ class TeamController extends Controller
     public function update(UpdateTeamRequest $request, Team $team)
     {
         $this->authorize('update', $team);
-        $team = $this->teamService->update($team, $request->validated());
+
+        $this->teamService->saveTeamWithMembers(
+            $team,
+            $request->validated(),
+            $request->members ?? []
+        );
 
         return redirect()
             ->route('teams.index')
             ->with('success', 'Team updated successfully');
     }
-
-
-
     /*
     |--------------------------------------------------------------------------
     | Show Assign Members Page
@@ -105,25 +123,11 @@ class TeamController extends Controller
 
         return view('teams.members', compact('team', 'employees'));
     }
-
     /*
     |--------------------------------------------------------------------------
     | Update Members
     |--------------------------------------------------------------------------
-    */
-    public function updateMembers(Request $request, Team $team)
-    {
-
-        $this->teamService->assignMembers(
-            $team,
-            $request->members ?? []
-        );
-
-        return redirect()
-            ->route('teams.index')
-            ->with('success', 'Team members updated successfully');
-    }
-
+    */    
     public function destroy(Team $team)
     {
         $this->authorize('delete', $team);

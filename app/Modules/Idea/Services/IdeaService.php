@@ -12,8 +12,6 @@ use App\Modules\Idea\Events\IdeaSubmitted;
 use Illuminate\Support\Facades\Log;
 
 
-
-
 class IdeaService
 {
     public function __construct(
@@ -42,14 +40,15 @@ class IdeaService
         ]);
 
         \Log::info('IdeaSubmitted event fired', [
-        'idea_id' => $idea->id,
-    ]);
+            'idea_id' => $idea->id,
+        ]);
 
-    event(new IdeaSubmitted($idea));
+        event(new IdeaSubmitted($idea));
 
         return $idea;
     }
-    
+
+
     public function review(Idea $idea, string $action, ?string $remark = null)
     {
         if ($idea->status !== IdeaStatus::Submitted) {
@@ -65,6 +64,7 @@ class IdeaService
         return $idea;
     }
 
+
     protected function approve(Idea $idea, ?string $remark)
     {
         $idea->update([
@@ -73,9 +73,10 @@ class IdeaService
             'reviewed_by' => Auth::id(),
             'reviewed_at' => now(),
         ]);
-       
+
         event(new IdeaApproved($idea));
-    } 
+    }
+
 
     protected function reject(Idea $idea, ?string $remark)
     {
@@ -89,6 +90,7 @@ class IdeaService
         event(new IdeaRejected($idea));
     }
 
+
     protected function sendBack(Idea $idea, ?string $remark)
     {
         $idea->update([
@@ -97,22 +99,23 @@ class IdeaService
         ]);
     }
 
+
     public function update(Idea $idea, array $data): Idea
-{
-    // Safety check (business rule)
-    if ($idea->status !== IdeaStatus::Draft) {
-        throw new \Exception('Only draft ideas can be updated.');
+    {
+        // Safety check (business rule)
+        if ($idea->status !== IdeaStatus::Draft) {
+            throw new \Exception('Only draft ideas can be updated.');
+        }
+
+        // Update only allowed fields
+        $this->ideaRepo->update($idea, [
+            'title'        => $data['title'],
+            'description'  => $data['description'],
+            'category'     => $data['category'],
+            'impact_level' => $data['impact_level'],
+        ]);
+
+        return $idea;
     }
-
-    // Update only allowed fields
-    $this->ideaRepo->update($idea, [
-        'title'        => $data['title'],
-        'description'  => $data['description'],
-        'category'     => $data['category'],
-        'impact_level' => $data['impact_level'],
-    ]);
-
-    return $idea;
-}
-
+    
 }

@@ -30,10 +30,12 @@ class StoreTeamRequest extends FormRequest
     public function rules(): array
     {
         return [
+          
             'name' => 'required|string|max:255',
-
-            // Team lead is optional at creation time
             'team_lead_id' => 'nullable|exists:users,id',
+            'members' => 'required|array',
+            'members.*' => 'exists:users,id',
+            'leader_id' => 'required|exists:users,id',
         ];
     }
 
@@ -45,10 +47,11 @@ class StoreTeamRequest extends FormRequest
     public function messages(): array
     {
         return [
+
+            'leader_id.required' => 'Choose Team Lead among the members',
             'name.required' => 'Team name is required.',
             'name.string'   => 'Team name must be a valid string.',
             'name.max'      => 'Team name cannot exceed 255 characters.',
-
             'team_lead_id.exists' => 'Selected team lead does not exist.',
         ];
     }

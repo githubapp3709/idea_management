@@ -12,12 +12,8 @@ use App\Modules\Idea\Requests\SubmitIdeaRequest;
 use App\Modules\Idea\Requests\ReviewIdeaRequest;
 use Illuminate\Support\Facades\Auth;
 
-
-
-
 class IdeaController extends Controller
 {
-
     public function __construct(
         protected IdeaService $ideaService
     ) {}
@@ -51,13 +47,10 @@ class IdeaController extends Controller
         return view('ideas.index', compact('ideas'));
     }
 
-
     public function create()
     {
         return view('ideas.create');
     }
-
-
 
     public function store(StoreIdeaRequest $request)
     {
@@ -84,7 +77,7 @@ class IdeaController extends Controller
 
         return redirect()
             ->route('ideas.index')
-            ->with('success', 'Idea updated successfully');
+            ->with('success', 'The idea has been updated successfully');
     }
 
 
@@ -94,7 +87,7 @@ class IdeaController extends Controller
         $this->ideaService->submit($idea);
         return redirect()
             ->route('ideas.index')
-            ->with('success', 'Idea submitted for review');
+            ->with('success', 'Your idea submitted for review');
     }
 
 
@@ -107,6 +100,7 @@ class IdeaController extends Controller
             $request->action,
             $request->remark
         );
+        
         return redirect()
             ->route('ideas.index')
             ->with('success', 'Idea reviewed successfully');

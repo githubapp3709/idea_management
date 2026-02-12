@@ -15,7 +15,10 @@ class UpdateTeamRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'team_lead_id' => 'nullable|exists:users,id'
+            'team_lead_id' => 'nullable|exists:users,id',
+            'members' => 'required|array',
+            'members.*' => 'exists:users,id',
+            'leader_id' => 'required|exists:users,id',
         ];
     }
 }
