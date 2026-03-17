@@ -7,7 +7,7 @@ use App\Models\User;
 
 class Team extends Model
 {
-    protected $fillable = ['name', 'team_lead_id'];
+    protected $fillable = ['name', 'team_lead_id', 'image'];
 
     public function leader()
     {
@@ -17,5 +17,12 @@ class Team extends Model
     public function members()
     {
         return $this->hasMany(User::class);
+    }
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image
+            ? asset('storage/' . $this->image)
+            : asset('images/default-team.png');
     }
 }

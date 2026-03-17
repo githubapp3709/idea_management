@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\IdeaStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Idea extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'user_id',
         'team_id',
@@ -22,14 +24,22 @@ class Idea extends Model
     ];
 
     protected $casts = [
-        'status'=> IdeaStatus::class,
-        'submitted_at'=>'datetime',
+        'status' => IdeaStatus::class,
+        'submitted_at' => 'datetime',
     ];
 
-    public  function user(){
+    public  function user()
+    {
         return $this->belongsTo(User::class);
     }
-    public function team(){
+    public function team()
+    {
         return $this->belongsTo(Team::class);
     }
+    public function attachments()
+    {
+        return $this->hasMany(IdeaAttachment::class);
+        
+    }
+    
 }

@@ -11,6 +11,10 @@ use App\Modules\Idea\Requests\UpdateIdeaRequest;
 use App\Modules\Idea\Requests\SubmitIdeaRequest;
 use App\Modules\Idea\Requests\ReviewIdeaRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Models\IdeaAttachment;
+use Illuminate\Support\Facades\Storage;
+
 
 class IdeaController extends Controller
 {
@@ -18,39 +22,74 @@ class IdeaController extends Controller
         protected IdeaService $ideaService
     ) {}
 
-    public function index()
+
+
+    public function index(Request $request)
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
-        $query = Idea::query()->with('user');
+        /*
+    |--------------------------------------------------------------------------
+    | BASE VISIBILITY QUERY (NO STATUS FILTER)
+    |--------------------------------------------------------------------------
+    */
 
-        // Draft ideas: only owner should ever see them
-        $query->where(function ($q) use ($user) {
-            $q->where('status', '!=', IdeaStatus::Draft)
-                ->orWhere('user_id', $user->id);
-        });
+        $baseQuery = Idea::query();
 
-        // Employee → only own ideas
         if ($user->role->name === 'employee') {
-            $query->where('user_id', $user->id);
+            $baseQuery->where('user_id', $user->id);
+        } elseif ($user->role->name === 'team_lead') {
+            $baseQuery->where('team_id', $user->team_id);
+        } elseif ($user->role->name === 'super_admin') {
+            $baseQuery->where(function ($q) use ($user) {
+                $q->where('status', '!=', 'draft')
+                    ->orWhere('user_id', $user->id);
+            });
         }
 
-        // Team Lead → team ideas (excluding drafts of others)
-        if ($user->role->name === 'team_lead') {
-            $query->where('team_id', $user->team_id);
+        /*
+    |--------------------------------------------------------------------------
+    | STATS (ALWAYS FROM BASE QUERY)
+    |--------------------------------------------------------------------------
+    */
+
+        $stats = [
+            'total'     => (clone $baseQuery)->count(),
+            'draft'     => (clone $baseQuery)->where('status', 'draft')->count(),
+            'submitted' => (clone $baseQuery)->where('status', 'submitted')->count(),
+            'approved'  => (clone $baseQuery)->where('status', 'approved')->count(),
+            'rejected'  => (clone $baseQuery)->where('status', 'rejected')->count(),
+        ];
+
+        /*
+    |--------------------------------------------------------------------------
+    | TABLE QUERY (FILTER APPLIED HERE ONLY)
+    |--------------------------------------------------------------------------
+    */
+
+        $query = clone $baseQuery;
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
 
-        // Super admin → all non-draft ideas (already handled above)
+        $ideas = $query->latest()->paginate(10)->withQueryString();
 
-        $ideas = $query->latest()->paginate(10);
-
-        return view('ideas.index', compact('ideas'));
+        return view('ideas.index', compact('ideas', 'stats'));
     }
+
 
     public function create()
     {
-        return view('ideas.create');
+        $previousIdeas = auth()->user()
+            ->ideas()
+            ->latest()
+            ->take(3)
+            ->get(['id', 'title', 'status', 'created_at']);
+
+        return view('ideas.create', compact('previousIdeas'));
     }
+
 
     public function store(StoreIdeaRequest $request)
     {
@@ -65,13 +104,32 @@ class IdeaController extends Controller
     public function edit(Idea $idea)
     {
         $this->authorize('update', $idea);
-        return view('ideas.edit', compact('idea'));
+
+
+        $previousIdeas = auth()->user()
+            ->ideas()
+            ->latest()
+            ->take(3)
+            ->get(['id', 'title', 'status', 'created_at']);
+        // Only allow editing draft
+        if ($idea->status !== IdeaStatus::Draft) {
+            abort(403, 'Only draft ideas can be edited.');
+        }
+
+        $idea->load('attachments');
+
+        return view('ideas.edit', compact('idea', 'previousIdeas'));
     }
+
 
 
     public function update(UpdateIdeaRequest $request, Idea $idea)
     {
         $this->authorize('update', $idea);
+
+        if ($idea->status !== IdeaStatus::Draft) {
+            abort(403, 'Only draft ideas can be edited.');
+        }
 
         $this->ideaService->update($idea, $request->validated());
 
@@ -79,6 +137,7 @@ class IdeaController extends Controller
             ->route('ideas.index')
             ->with('success', 'The idea has been updated successfully');
     }
+
 
 
     public function submit(SubmitIdeaRequest $request, Idea $idea)
@@ -100,7 +159,7 @@ class IdeaController extends Controller
             $request->action,
             $request->remark
         );
-        
+
         return redirect()
             ->route('ideas.index')
             ->with('success', 'Idea reviewed successfully');
@@ -110,6 +169,43 @@ class IdeaController extends Controller
     public function show(Idea $idea)
     {
         $this->authorize('view', $idea);
+
+        $idea->load('user.team', 'attachments');
+
         return view('ideas.show', compact('idea'));
+    }
+
+
+    public function deleteAttachment(IdeaAttachment $attachment)
+    {
+        $idea = $attachment->idea;
+
+        $this->authorize('update', $idea);
+
+        if ($idea->status !== IdeaStatus::Draft) {
+            abort(403);
+        }
+
+        // Delete file from storage
+        Storage::disk('public')->delete($attachment->file_path);
+
+        $attachment->delete();
+
+        return back()->with('success', 'Attachment removed.');
+    }
+
+    public function destroy(Idea $idea)
+    {
+        $this->authorize('delete', $idea);
+
+        if ($idea->status !== \App\Enums\IdeaStatus::Draft) {
+            abort(403, 'Only draft ideas can be deleted.');
+        }
+
+        $this->ideaService->delete($idea);
+
+        return redirect()
+            ->route('ideas.index')
+            ->with('success', 'Draft idea deleted successfully.');
     }
 }

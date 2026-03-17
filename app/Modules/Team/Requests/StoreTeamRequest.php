@@ -36,6 +36,7 @@ class StoreTeamRequest extends FormRequest
             'members' => 'required|array',
             'members.*' => 'exists:users,id',
             'leader_id' => 'required|exists:users,id',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:5120',
         ];
     }
 

@@ -21,7 +21,7 @@
             @include('layouts.topbar')
 
             {{-- Content --}}
-            <main class="p-6 overflow-y-auto">
+            <main class="p-6 overflow-y-auto ">
                 @if(session('success'))
                 <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">
                     {{ session('success') }}

@@ -18,15 +18,19 @@ class DashboardService
             'top_teams' => $this->repo->topTeams(),
         ];
     }
+ 
+  public function teamLead(User $user, string $range = '6months')
+{
+    return [
+        'stats' => $this->repo->teamStats($user->team_id),
 
-    public function teamLead(User $user)
-    {
-        
-        return [
-            'stats' => $this->repo->teamStats($user->team_id),
-            'team_members' => $this->repo->teamLeaderboard($user->team_id),
-        ];
-    }
+        'team_members' => $this->repo->teamLeaderboard($user->team_id),
+
+        'chart' => $this->repo->teamIdeasChart($user->team_id, $range),
+
+        'recent_ideas' => $this->repo->teamRecentIdeas($user->team_id),
+    ];
+}
 
     public function employee(User $user)
     {

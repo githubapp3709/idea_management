@@ -11,9 +11,15 @@ class IdeaRepository
         return Idea::create($data);
     }
 
-    public function update(Idea $idea, array $data)
+    public function update(Idea $idea, array $data): Idea
     {
         $idea->update($data);
+
         return $idea;
+    }
+
+    public function delete(Idea $idea): void
+    {
+        $idea->delete(); // Soft delete if trait used
     }
 }

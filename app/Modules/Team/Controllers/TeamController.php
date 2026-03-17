@@ -127,7 +127,7 @@ class TeamController extends Controller
     |--------------------------------------------------------------------------
     | Update Members
     |--------------------------------------------------------------------------
-    */    
+    */
     public function destroy(Team $team)
     {
         $this->authorize('delete', $team);
@@ -137,5 +137,16 @@ class TeamController extends Controller
         return redirect()
             ->route('teams.index')
             ->with('success', 'Team deleted successfully');
+    }
+
+    public function show(Team $team)
+    {
+        $this->authorize('view', $team);
+
+        // Only members belonging to this team
+        $members = \App\Models\User::where('team_id', $team->id)
+            ->get();
+
+        return view('teams.show', compact('team', 'members'));
     }
 }

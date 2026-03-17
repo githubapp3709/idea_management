@@ -95,4 +95,37 @@ class DashboardRepository
             ->limit(5)
             ->get(['id', 'title', 'status', 'created_at']);
     }
+
+    public function teamIdeasChart(int $teamId, string $range)
+{
+    $startDate = match ($range) {
+        '7days'   => now()->subDays(7),
+        '30days'  => now()->subDays(30),
+        default   => now()->subMonths(6),
+    };
+
+    $ideas = Idea::where('team_id', $teamId)
+        ->where('created_at', '>=', $startDate)
+        ->get()
+        ->groupBy(function ($item) use ($range) {
+            return match ($range) {
+                '7days', '30days' => $item->created_at->format('d M'),
+                default           => $item->created_at->format('M'),
+            };
+        });
+
+    return [
+        'labels' => $ideas->keys(),
+        'data'   => $ideas->map->count()->values(),
+    ];
+}
+
+public function teamRecentIdeas(int $teamId)
+{
+    return Idea::where('team_id', $teamId)
+        ->latest()
+        ->limit(5)
+        ->get(['id', 'title', 'status', 'created_at', 'user_id'])
+        ->load('user:id,name');
+}
 }

@@ -6,12 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-
+    use HasFactory, Notifiable, SoftDeletes;
     /**
      * The attributes that are mass assignable.
      *
@@ -23,6 +23,9 @@ class User extends Authenticatable
         'password',
         'role_id',
         'team_id',
+        'status',
+        'employee_code',
+        'profile_image',
     ];
 
     /**
@@ -48,11 +51,29 @@ class User extends Authenticatable
         ];
     }
 
-    public function role(){
-      return $this->belongsTo(Role::class);
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
     }
 
-    public function team(){
-         return $this->belongsTo(Team::class);
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
     }
+
+    public function getProfileImageUrlAttribute()
+    {
+        return $this->profile_image
+            ? asset('storage/' . $this->profile_image)
+            : asset('images/default-user.jpg');
+    }
+
+    public function ideas()
+    {
+        return $this->hasMany(Idea::class);
+    }
+    // public function rewardLogs()
+    // {
+    //     return $this->hasMany(\App\Models\RewardLog::class);
+    // }
 }

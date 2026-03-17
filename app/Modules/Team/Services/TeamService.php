@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Team;
 use App\Modules\Team\Repositories\TeamRepository;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TeamService
 {
@@ -14,8 +15,8 @@ class TeamService
         protected TeamRepository $teamRepo
     ) {}
 
-   
-    
+
+
     public function delete(Team $team)
     {
         // Remove team from users
@@ -36,18 +37,29 @@ class TeamService
 
             // 1️⃣ Create or update team
             if (!$team) {
-                $team = Team::create([
-                    'name' => $data['name'],
-                    'team_lead_id' => $data['leader_id'] ?? null,
-                ]);
-            } else {
-                $team->update([
-                    'name' => $data['name'],
-                    'team_lead_id' => $data['leader_id'] ?? null,
-                ]);
+                $team = new Team();
             }
 
+            $team->name = $data['name'];
+            $team->team_lead_id = $data['leader_id'] ?? null;
+
+            // 🔥 Handle image upload
+            if (request()->hasFile('image')) {
+
+                // Delete old image if exists
+                if ($team->image && Storage::disk('public')->exists($team->image)) {
+                    Storage::disk('public')->delete($team->image);
+                }
+
+                $path = request()->file('image')
+                    ->store('teams', 'public');
+
+                $team->image = $path;
+            }
+
+            $team->save();
             $team->refresh();
+
 
             // 2️⃣ Reset existing team members (only if updating)
             User::where('team_id', $team->id)

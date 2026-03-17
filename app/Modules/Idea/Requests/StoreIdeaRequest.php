@@ -19,6 +19,12 @@ class StoreIdeaRequest extends FormRequest
             'description' => 'required|string',
             'category' => 'nullable|string|max:100',
             'impact_level' => 'required|in:low,medium,high',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'image|mimes:jpg,jpeg,png|max:20480',
+
+            'videos' => 'nullable|array|max:2',
+            'videos.*' => 'file|mimes:mp4,mov,avi|max:91200',
+
         ];
     }
 }

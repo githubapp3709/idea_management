@@ -10,6 +10,7 @@ use App\Modules\Idea\Repositories\IdeaRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Modules\Idea\Events\IdeaSubmitted;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 
 class IdeaService
@@ -18,15 +19,74 @@ class IdeaService
         protected IdeaRepository $ideaRepo
     ) {}
 
+
+
     public function create(array $data)
     {
-        return $this->ideaRepo->create([
+        // Step 1: Create idea using repository
+        $idea = $this->ideaRepo->create([
             ...$data,
             'user_id' => Auth::id(),
             'team_id' => Auth::user()->team_id,
             'status' => IdeaStatus::Draft,
         ]);
+
+        // Step 2: Handle attachments
+        $this->handleAttachments($idea);
+
+        return $idea;
     }
+
+    private function handleAttachments(Idea $idea): void
+    {
+        // Handle Images
+        if (request()->hasFile('images')) {
+
+            $existingImages = $idea->attachments()
+                ->where('file_type', 'image')
+                ->count();
+
+            foreach (request()->file('images') as $image) {
+
+                if ($existingImages >= 5) break;
+
+                $path = $image->store('ideas/images', 'public');
+
+                $idea->attachments()->create([
+                    'file_path' => $path,
+                    'file_type' => 'image',
+                ]);
+
+                $existingImages++;
+            }
+        }
+
+        // Handle Videos
+        if (request()->hasFile('videos')) {
+
+            $existingVideos = $idea->attachments()
+                ->where('file_type', 'video')
+                ->count();
+
+            foreach (request()->file('videos') as $video) {
+
+                if ($existingVideos >= 2) break;
+
+                $path = $video->store('ideas/videos', 'public');
+
+                $idea->attachments()->create([
+                    'file_path' => $path,
+                    'file_type' => 'video',
+                ]);
+
+                $existingVideos++;
+            }
+        }
+    }
+
+
+
+
 
     public function submit(Idea $idea)
     {
@@ -100,22 +160,25 @@ class IdeaService
     }
 
 
-    public function update(Idea $idea, array $data): Idea
+    public function update(Idea $idea, array $data)
     {
-        // Safety check (business rule)
-        if ($idea->status !== IdeaStatus::Draft) {
-            throw new \Exception('Only draft ideas can be updated.');
-        }
+        // Update basic idea fields using repository
+        $this->ideaRepo->update($idea, $data);
 
-        // Update only allowed fields
-        $this->ideaRepo->update($idea, [
-            'title'        => $data['title'],
-            'description'  => $data['description'],
-            'category'     => $data['category'],
-            'impact_level' => $data['impact_level'],
-        ]);
+        // Handle new attachments
+        $this->handleAttachments($idea);
 
         return $idea;
     }
-    
+
+    public function delete(Idea $idea): void
+    {
+        // Delete attachments files
+        foreach ($idea->attachments as $attachment) {
+            Storage::disk('public')->delete($attachment->file_path);
+        }
+
+        // Delete idea (soft delete recommended)
+        $this->ideaRepo->delete($idea);
+    }
 }

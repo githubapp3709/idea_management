@@ -1,4 +1,4 @@
-<aside class="w-64 bg-indigo-700 text-white">
+<aside class="w-64 bg-amber-200 text-white">
 
     <div class="p-6 text-lg font-bold">
         💡 Idea System
