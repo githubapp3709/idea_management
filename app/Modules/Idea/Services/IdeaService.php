@@ -181,4 +181,15 @@ class IdeaService
         // Delete idea (soft delete recommended)
         $this->ideaRepo->delete($idea);
     }
+
+    public function getIdeas($request, $user)
+{
+    return $this->ideaRepo->getFilteredIdeas($request, $user);
 }
+
+public function getStats($user)
+{
+    return $this->ideaRepo->getStats($user);
+}
+}
+ 

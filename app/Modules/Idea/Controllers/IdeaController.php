@@ -25,58 +25,15 @@ class IdeaController extends Controller
 
 
     public function index(Request $request)
-    {
-        $user = auth()->user();
+{
+    $user = Auth::user();
 
-        /*
-    |--------------------------------------------------------------------------
-    | BASE VISIBILITY QUERY (NO STATUS FILTER)
-    |--------------------------------------------------------------------------
-    */
+    $ideas = $this->ideaService->getIdeas($request, $user);
 
-        $baseQuery = Idea::query();
+    $stats = $this->ideaService->getStats($user);
 
-        if ($user->role->name === 'employee') {
-            $baseQuery->where('user_id', $user->id);
-        } elseif ($user->role->name === 'team_lead') {
-            $baseQuery->where('team_id', $user->team_id);
-        } elseif ($user->role->name === 'super_admin') {
-            $baseQuery->where(function ($q) use ($user) {
-                $q->where('status', '!=', 'draft')
-                    ->orWhere('user_id', $user->id);
-            });
-        }
-
-        /*
-    |--------------------------------------------------------------------------
-    | STATS (ALWAYS FROM BASE QUERY)
-    |--------------------------------------------------------------------------
-    */
-
-        $stats = [
-            'total'     => (clone $baseQuery)->count(),
-            'draft'     => (clone $baseQuery)->where('status', 'draft')->count(),
-            'submitted' => (clone $baseQuery)->where('status', 'submitted')->count(),
-            'approved'  => (clone $baseQuery)->where('status', 'approved')->count(),
-            'rejected'  => (clone $baseQuery)->where('status', 'rejected')->count(),
-        ];
-
-        /*
-    |--------------------------------------------------------------------------
-    | TABLE QUERY (FILTER APPLIED HERE ONLY)
-    |--------------------------------------------------------------------------
-    */
-
-        $query = clone $baseQuery;
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        $ideas = $query->latest()->paginate(10)->withQueryString();
-
-        return view('ideas.index', compact('ideas', 'stats'));
-    }
+    return view('ideas.index', compact('ideas', 'stats'));
+}
 
 
     public function create()

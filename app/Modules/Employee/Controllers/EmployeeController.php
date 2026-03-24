@@ -24,6 +24,8 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
+         $this->authorize('viewAny', User::class);
+
         $employees = $this->employeeService->getEmployees($request);
         $stats = $this->employeeService->getStats();
 
@@ -42,6 +44,7 @@ class EmployeeController extends Controller
 
     public function import(ImportEmployeeRequest $request)
     {
+        $this->authorize('viewAny', User::class);
         // 🔹 File validation (UI errors)
         $request->validate([
             'file' => 'required|mimes:csv,xlsx|max:2048',
@@ -71,12 +74,14 @@ class EmployeeController extends Controller
 
     public function export()
     {
+        $this->authorize('viewAny', User::class);
         return Excel::download(new EmployeesExport, 'employees.xlsx');
     }
 
 
     public function bulkDelete(Request $request)
     {
+        $this->authorize('viewAny', User::class);
         $this->employeeService->bulkDelete($request->ids ?? []);
 
         return back()->with('success', 'Selected employees deleted');
@@ -84,6 +89,7 @@ class EmployeeController extends Controller
 
     public function downloadTemplate()
     {
+        $this->authorize('viewAny', User::class);
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => 'attachment; filename="employee_import_template.csv"',
@@ -118,6 +124,7 @@ class EmployeeController extends Controller
 
     protected function downloadFailedFile($failedRows)
     {
+        $this->authorize('viewAny', User::class);
         $filename = 'failed_import_' . now()->timestamp . '.csv';
 
         $headers = [
@@ -150,12 +157,14 @@ class EmployeeController extends Controller
 
     public function create()
     {
+        $this->authorize('viewAny', User::class);
         $teams = Team::all();
         return view('employees.form', compact('teams'));
     }
  
     public function store(StoreEmployeeRequest $request)
     {
+        $this->authorize('viewAny', User::class);
         $this->employeeService->create($request->validated());
 
         return redirect()
@@ -165,13 +174,14 @@ class EmployeeController extends Controller
 
     public function edit(User $user)
     {
+        $this->authorize('viewAny', User::class);
         $teams= Team::get();
         return view('employees.form', compact('user','teams'));
     }
 
     public function update(UpdateEmployeeRequest $request, User $user)
     {
-        
+        $this->authorize('viewAny', User::class);
         $this->employeeService->update($user, $request->validated());
 
         return redirect()
@@ -181,6 +191,7 @@ class EmployeeController extends Controller
 
     public function show(User $user)
     {
+        $this->authorize('viewAny', User::class);
         // $this->authorize('view', $user); // optional policy
 
         $user->load(['team', 'role']);
@@ -197,6 +208,7 @@ class EmployeeController extends Controller
 
     public function destroy(User $user)
     {
+        $this->authorize('viewAny', User::class);
         $this->employeeService->destroy($user);
 
         return back()->with('success', 'Employee deleted successfully');

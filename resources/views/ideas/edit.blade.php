@@ -328,7 +328,6 @@
                 class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
             Delete Draft
         </button>
-    </form>
     @endif
 
     {{-- Right Side Buttons --}}
@@ -343,7 +342,7 @@
             Update Draft
         </button>
     </div>
-
+    </form>
 </div>
 
 <form id="deleteAttachmentForm" method="POST" class="hidden">

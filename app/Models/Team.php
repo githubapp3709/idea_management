@@ -25,4 +25,9 @@ class Team extends Model
             ? asset('storage/' . $this->image)
             : asset('images/default-team.png');
     }
+
+    public function ideas()
+    {
+        return $this->hasMany(\App\Models\Idea::class);
+    }
 }

@@ -7,15 +7,7 @@
 
 <div class="max-w-7xl mx-auto space-y-8">
 
-    {{-- Header --}}
-    <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-semibold"></h1>
 
-        <a href="{{ route('ideas.create') }}"
-            class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
-            Submit New Idea
-        </a>
-    </div>
 
     {{-- STATUS CARDS --}}
     <div class="grid grid-cols-5 gap-6">
@@ -71,6 +63,49 @@
         </a>
 
     </div>
+
+
+    {{-- Header --}}
+
+
+    <div class="flex justify-between items-center">
+
+        <a href="{{ route('ideas.create') }}"
+            class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+            Submit New Idea
+        </a>
+
+        {{-- SEARCH + FILTER --}}
+        <form method="GET" action="{{ route('ideas.index') }}" class="flex gap-4 items-center mb-4">
+
+            <input type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Search ideas..."
+                class="border px-4 py-2 rounded-lg w-72 focus:outline-none focus:ring">
+
+            {{-- Keep status filter when searching --}}
+            @if(request('status'))
+            <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
+
+            <button type="submit"
+                class="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+                Search
+            </button>
+
+            <a href="{{ route('ideas.index') }}"
+                class="px-4 py-2 bg-gray-200 rounded-lg">
+                Reset
+            </a>
+
+        </form>
+
+    </div>
+
+
+
+
 
 
     {{-- TABLE --}}
