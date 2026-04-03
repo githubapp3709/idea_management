@@ -27,4 +27,5 @@ class NotifyUserOnIdeaApproved
             new IdeaApprovedNotification($event->idea)
         );
     }
+    
 }

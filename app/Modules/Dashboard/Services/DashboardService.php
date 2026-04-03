@@ -13,37 +13,31 @@ class DashboardService
 
     /* ================= ADMIN ================= */
 
-    public function admin()
+    public function admin($request)
     {
-        return [
-            'stats' => $this->repo->adminStats(),
-            'employee_stats' => $this->repo->employeeStatsAll(),
-            'recent_ideas' => $this->repo->recentIdeasForAdmin(),
-            'top_contributors' => $this->repo->topContributors(),
-            'top_teams' => $this->repo->topTeams(),
-            'teams' => $this->repo->teamCards(),
-        ];
+        return $this->repo->getAdminDashboardData($request);
     }
 
     /* ================= TEAM LEAD ================= */
 
-    public function teamLead(User $user, string $range = '6months')
+    public function teamLead(User $user, $request)
     {
         return [
-            'stats' => $this->repo->teamStats($user->team_id),
+            'stats' => $this->repo->teamStats($user->team_id, $request),
             'team_members' => $this->repo->teamLeaderboard($user->team_id),
-            'chart' => $this->repo->teamIdeasChart($user->team_id, $range),
-            'recent_ideas' => $this->repo->teamRecentIdeas($user->team_id),
+            'chart' => $this->repo->teamIdeasChart($user->team_id, $request),
+            'recent_ideas' => $this->repo->teamRecentIdeas($user->team_id, $request),
         ];
     }
 
     /* ================= EMPLOYEE ================= */
 
-    public function employee(User $user)
+    public function employee(User $user, $request)
     {
         return [
-            'stats' => $this->repo->employeeStats($user->id),
-            'recent_ideas' => $this->repo->recentIdeas($user->id),
+            'stats' => $this->repo->employeeStats($user->id, $request),
+            'chart' => $this->repo->employeeIdeasChart($user->id, $request),
+            'recent_ideas' => $this->repo->recentIdeas($user->id, $request),
         ];
-    }
+    } 
 }

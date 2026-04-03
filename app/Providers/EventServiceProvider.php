@@ -22,6 +22,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Modules\Idea\Events\IdeaSubmitted::class => [
             \App\Modules\Notification\Listeners\NotifyTeamLeadOnIdeaSubmitted::class,
         ],
+        \App\Modules\Idea\Events\IdeaSentBack::class => [
+    \App\Modules\Notification\Listeners\NotifyUserOnIdeaSentBack::class,
+],
     ];
 
     public function boot(): void

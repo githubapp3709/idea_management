@@ -14,6 +14,7 @@ class Idea extends Model
         'team_id',
         'title',
         'description',
+        'swot',
         'category',
         'impact_level',
         'status',

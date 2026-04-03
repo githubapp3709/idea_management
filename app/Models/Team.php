@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
+use App\Models\Idea;
 
 class Team extends Model
 {
@@ -28,6 +29,11 @@ class Team extends Model
 
     public function ideas()
     {
-        return $this->hasMany(\App\Models\Idea::class);
+        return $this->hasMany(Idea::class);
+    }
+    
+    public function users()
+    {
+        return $this->hasMany(User::class);
     }
 }

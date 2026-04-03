@@ -25,15 +25,15 @@ class IdeaController extends Controller
 
 
     public function index(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $ideas = $this->ideaService->getIdeas($request, $user);
+        $ideas = $this->ideaService->getIdeas($request, $user);
 
-    $stats = $this->ideaService->getStats($user);
+        $stats = $this->ideaService->getStats($user);
 
-    return view('ideas.index', compact('ideas', 'stats'));
-}
+        return view('ideas.index', compact('ideas', 'stats'));
+    }
 
 
     public function create()
@@ -69,7 +69,7 @@ class IdeaController extends Controller
             ->take(3)
             ->get(['id', 'title', 'status', 'created_at']);
         // Only allow editing draft
-        if ($idea->status !== IdeaStatus::Draft) {
+        if ($idea->status !== IdeaStatus::Draft && $idea->status !== IdeaStatus::Feedback) {
             abort(403, 'Only draft ideas can be edited.');
         }
 
@@ -79,12 +79,12 @@ class IdeaController extends Controller
     }
 
 
-
+ 
     public function update(UpdateIdeaRequest $request, Idea $idea)
     {
         $this->authorize('update', $idea);
 
-        if ($idea->status !== IdeaStatus::Draft) {
+        if ($idea->status !== IdeaStatus::Draft && $idea->status !== IdeaStatus::Feedback) {
             abort(403, 'Only draft ideas can be edited.');
         }
 
@@ -105,7 +105,7 @@ class IdeaController extends Controller
             ->route('ideas.index')
             ->with('success', 'Your idea submitted for review');
     }
-
+ 
 
     public function review(ReviewIdeaRequest $request, Idea $idea)
     {
@@ -164,5 +164,11 @@ class IdeaController extends Controller
         return redirect()
             ->route('ideas.index')
             ->with('success', 'Draft idea deleted successfully.');
+    }
+
+    public function approved(Request $request)
+    {
+        $ideas = $this->ideaService->approvedIdeas($request);
+        return view('ideas.approved', compact('ideas'));
     }
 }

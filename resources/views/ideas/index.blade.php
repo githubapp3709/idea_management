@@ -21,7 +21,7 @@
             </div>
             <span class="text-3xl">📊</span>
         </a>
-
+ 
         {{-- Draft --}}
         <a href="{{ route('ideas.index', ['status' => 'draft']) }}"
             class="bg-gray-500 text-white rounded-xl p-6 shadow flex items-center justify-between">
@@ -116,12 +116,12 @@
             {{-- Header --}}
             <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
                 <tr>
-                    <th class="px-6 py-3 text-left">#</th>
-                    <th class="px-6 py-3 text-left">Title</th>
-                    <th class="px-6 py-3 text-left">Submitted By</th>
-                    <th class="px-6 py-3 text-left">Status</th>
-                    <th class="px-6 py-3 text-left">Submitted At</th>
-                    <th class="px-6 py-3 text-left">Actions</th>
+                    <th class="px-6 py-3 text-left border border-gray-300">#</th>
+                    <th class="px-6 py-3 text-left border border-gray-300">Title</th>
+                    <th class="px-6 py-3 text-left border border-gray-300">Submitted By</th>
+                    <th class="px-6 py-3 text-left border border-gray-300">Status</th>
+                    <th class="px-6 py-3 text-left border border-gray-300">Submitted At</th>
+                    <th class="px-6 py-3 text-left border border-gray-300">Actions</th>
                 </tr>
             </thead>
 
@@ -131,24 +131,25 @@
                 <tr>
 
                     {{-- Serial Number --}}
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 border border-gray-300">
                         {{ $ideas->firstItem() + $loop->index }}
                     </td>
 
                     {{-- Title --}}
-                    <td class="px-6 py-4">
-                        {{ $idea->title }}
+                    <td class="px-6 py-4 border border-gray-300">
+                       {{ \Illuminate\Support\Str::limit($idea->title, 20) }}
                     </td>
 
                     {{-- Submitted By --}}
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 border border-gray-300">
                         {{ $idea->user->name }}
                     </td>
 
                     {{-- Status --}}
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 border border-gray-300">
                         <span class="px-3 py-1 rounded-full text-xs font-semibold
                         @if($idea->status->value === 'approved') bg-green-100 text-green-700
+                        @elseif($idea->status->value === 'feedback') bg-yellow-400 text-yellow-700
                         @elseif($idea->status->value === 'rejected') bg-red-100 text-red-700
                         @elseif($idea->status->value === 'submitted') bg-purple-100 text-purple-700
                         @else bg-yellow-100 text-yellow-700
@@ -158,7 +159,7 @@
                     </td>
 
                     {{-- Submitted At --}}
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4 border border-gray-300">
                         {{ $idea->submitted_at 
                         ? $idea->submitted_at->format('d M Y') 
                         : '-' }}
@@ -178,7 +179,8 @@
                         @endcan
 
                         {{-- Edit (Only Draft Owner) --}}
-                        @if($idea->status->value === 'draft')
+
+                        @if($idea->status->value === 'draft' || $idea->status->value === 'feedback')
                         @can('update', $idea)
                         <a href="{{ route('ideas.edit', $idea) }}"
                             class="text-green-600 hover:underline">

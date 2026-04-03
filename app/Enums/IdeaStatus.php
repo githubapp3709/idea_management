@@ -8,6 +8,7 @@ enum IdeaStatus: string
     case Submitted='submitted';
     case UnderReview='under_review';
     case Approved='approved';
+    case Feedback='feedback';
     case Rejected ='rejected ';
     case Implemented ='implemented ';
     case Rewarded ='rewarded ';

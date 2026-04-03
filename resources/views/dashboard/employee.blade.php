@@ -12,14 +12,34 @@
     </h2>
 </div>
 
+<form method="GET" class="flex gap-4 mb-6">
+
+    <input type="date" name="from_date" value="{{ request('from_date') }}" class="border px-3 py-2 rounded">
+
+    <input type="date" name="to_date" value="{{ request('to_date') }}" class="border px-3 py-2 rounded">
+
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded">
+        Apply
+    </button>
+
+    <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-200 rounded">
+        Reset
+    </a>
+ 
+</form>
+
 {{-- STATS CARDS --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
 
     <div class="p-5 rounded-xl text-white bg-gradient-to-r from-purple-500 to-indigo-500 shadow">
         <p class="text-sm">My Ideas</p>
         <h2 class="text-2xl font-bold">{{ $data['stats']['total_ideas'] }}</h2>
     </div>
 
+    <div class="p-5 rounded-xl text-white bg-gradient-to-r from-lime-900 to-grey-700 shadow">
+        <p class="text-sm">Drafts</p>
+        <h2 class="text-2xl font-bold">{{ $data['stats']['drafts'] }}</h2>
+    </div>
     <div class="p-5 rounded-xl text-white bg-gradient-to-r from-orange-400 to-yellow-500 shadow">
         <p class="text-sm">Pending</p>
         <h2 class="text-2xl font-bold">{{ $data['stats']['pending'] }}</h2>
@@ -45,16 +65,6 @@
 
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-semibold text-lg">My Performance</h3>
-
-            <form method="GET">
-                <select name="range"
-                        onchange="this.form.submit()"
-                        class="border rounded px-3 py-1 text-sm">
-                    <option value="6months">Last 6 Months</option>
-                    <option value="30days">Last 30 Days</option>
-                    <option value="7days">Last 7 Days</option>
-                </select>
-            </form>
         </div>
 
         <canvas id="performanceChart" height="120"></canvas>
@@ -69,30 +79,30 @@
         </div>
 
         @foreach($data['recent_ideas'] as $idea)
-            <div class="flex items-start gap-3 mb-4">
+        <div class="flex items-start gap-3 mb-4">
 
-                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
+            <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            </div>
 
-                <div class="flex-1">
-                    <p class="font-medium text-sm">{{ $idea->title }}</p>
+            <div class="flex-1">
+                <p class="font-medium text-sm">{{ $idea->title }}</p>
 
-                    <span class="text-xs px-2 py-1 rounded
+                <span class="text-xs px-2 py-1 rounded
                         @if($idea->status->value === 'approved') bg-green-100 text-green-700
                         @elseif($idea->status->value === 'rejected') bg-red-100 text-red-700
                         @elseif($idea->status->value === 'submitted') bg-purple-100 text-purple-700
                         @else bg-yellow-100 text-yellow-700
                         @endif">
-                        {{ ucfirst($idea->status->value) }}
-                    </span>
+                    {{ ucfirst($idea->status->value) }}
+                </span>
 
-                    <p class="text-xs text-gray-400">
-                        {{ $idea->created_at->diffForHumans() }}
-                    </p>
-                </div>
-
+                <p class="text-xs text-gray-400">
+                    {{ $idea->created_at->diffForHumans() }}
+                </p>
             </div>
+
+        </div>
         @endforeach
 
     </div>
@@ -156,29 +166,29 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
 
-    const canvas = document.getElementById('performanceChart');
-    if (!canvas) return;
+        const canvas = document.getElementById('performanceChart');
+        if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d');
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: @json($data['chart']['labels'] ?? []),
-            datasets: [{
-                label: 'Ideas',
-                data: @json($data['chart']['data'] ?? []),
-                borderColor: '#6366f1',
-                backgroundColor: 'rgba(99,102,241,0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        }
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($data['chart']['labels'] ?? []),
+                datasets: [{
+                    label: 'Ideas',
+                    data: @json($data['chart']['data'] ?? []),
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99,102,241,0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            }
+        });
+
     });
-
-});
 </script>
 
 @endsection

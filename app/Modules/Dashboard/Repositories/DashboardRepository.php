@@ -12,63 +12,121 @@ class DashboardRepository
 {
     /* ---------------- ADMIN ---------------- */
 
-    public function adminStats()
+    public function getAdminDashboardData($request)
     {
-        $total = Idea::where('status', '!=', IdeaStatus::Draft)->count();
-        $approvedRejectedIdeas = Idea::whereIn('status', [
-            IdeaStatus::Approved,
-            IdeaStatus::Rejected
-        ])->count();
-        $approvedIdeas = Idea::where('status', IdeaStatus::Approved)->count();
-        $approvalRate = $approvedRejectedIdeas > 0
-            ? (($approvedIdeas / $approvedRejectedIdeas) * 100)
+        /* ================= BASE QUERY ================= */
+
+        $base = Idea::query();
+        $base = $this->applyDateFilter($base, $request);
+
+        /* ================= STATS ================= */
+
+        $stats = [
+            'total_ideas' => (clone $base)->whereIn('status', ['approved', 'submitted', 'rejected'])->count(),
+            'total_ideas_for_approval_rate' => (clone $base)->whereIn('status', ['approved', 'rejected'])->count(),
+            'submitted' => (clone $base)->where('status', 'submitted')->count(),
+            'approved_ideas' => (clone $base)->where('status', 'approved')->count(),
+            'rejected_ideas' => (clone $base)->where('status', 'rejected')->count(),
+        ];
+
+        $stats['approval_rate'] = $stats['total_ideas_for_approval_rate'] > 0
+            ? round(($stats['approved_ideas'] / $stats['total_ideas_for_approval_rate']) * 100)
             : 0;
 
-        return [
-            'total_ideas' => $total,
-            'draft' => Idea::where('status', IdeaStatus::Draft)->count(),
-            'submitted' => Idea::where('status', IdeaStatus::Submitted)->count(),
-            'approved_ideas' => Idea::where('status', IdeaStatus::Approved)->count(),
-            'rejected_ideas' => Idea::where('status', IdeaStatus::Rejected)->count(),
-            'approval_rate' => $approvalRate
+        /* ================= RECENT IDEAS ================= */
 
+        $recentIdeas = (clone $base)
+            ->with('user')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        /* ================= TOP CONTRIBUTORS ================= */
+
+        $topContributors = User::whereHas('ideas', function ($q) use ($request) {
+            $this->applyDateFilter($q, $request);
+        })
+            ->select('id', 'name', 'reward_points')
+            ->orderByDesc('reward_points')
+            ->take(5)
+            ->get();
+
+        /* ================= TOP TEAMS ================= */
+
+        $topTeams = Team::withSum([
+            'users as total_points' => function ($q) use ($request) {
+                $this->applyDateFilter($q, $request);
+            }
+        ], 'reward_points')
+            ->orderByDesc('total_points')
+            ->take(5)
+            ->get();
+
+        /* ================= TEAM CARDS ================= */
+
+        $teams = Team::withCount([
+            'ideas' => function ($q) use ($request) {
+                $this->applyDateFilter($q, $request);
+            },
+            'ideas as approved_ideas_count' => function ($q) use ($request) {
+                $q->where('status', 'approved');
+                $this->applyDateFilter($q, $request);
+            }
+        ])->get();
+
+        /* ================= EMPLOYEE STATS (FILTERED) ================= */
+
+        $baseUser = User::query();
+        $baseUser = $this->applyDateFilter($baseUser, $request);
+        $employeeStats = [
+            'total' => (clone $baseUser)->count(),
+
+            'active' => (clone $baseUser)
+                ->where('status', 'active')
+                ->count(),
+
+            'inactive' => (clone $baseUser)
+                ->where('status', 'inactive')
+                ->count(),
+
+            'assigned' => (clone $baseUser)
+                ->whereNotNull('team_id')
+                ->count(),
+
+            'unassigned' => (clone $baseUser)
+                ->whereNull('team_id')
+                ->count(),
+
+            'team_leads' => (clone $baseUser)
+                ->whereHas(
+                    'role',
+                    fn($q) =>
+                    $q->where('name', 'team_lead')
+                )->count(),
+        ];
+
+        return [
+            'stats' => $stats,
+            'employee_stats' => $employeeStats,
+            'recent_ideas' => $recentIdeas,
+            'top_contributors' => $topContributors,
+            'top_teams' => $topTeams,
+            'teams' => $teams,
         ];
     }
-
-    public function topContributors()
-    {
-        return User::select('id', 'name', 'reward_points')
-            ->orderByDesc('reward_points')
-            ->limit(5)
-            ->get();
-    }
-
-    public function topTeams()
-    {
-        return Team::select(
-            'teams.id',
-            'teams.name',
-            DB::raw('SUM(users.reward_points) as total_points')
-        )
-            ->join('users', 'users.team_id', '=', 'teams.id')
-            ->groupBy('teams.id', 'teams.name')
-            ->orderByDesc('total_points')
-            ->limit(5)
-            ->get();
-    }
-
     /* ---------------- TEAM LEAD ---------------- */
 
-    public function teamStats(int $teamId)
+    public function teamStats(int $teamId, $request)
     {
+        $base = Idea::where('team_id', $teamId);
+
+        $base = $this->applyDateFilter($base, $request);
+
         return [
-            'total_ideas' => Idea::where('team_id', $teamId)->count(),
-            'pending' => Idea::where('team_id', $teamId)
-                ->where('status', IdeaStatus::Submitted)->count(),
-            'approved' => Idea::where('team_id', $teamId)
-                ->where('status', IdeaStatus::Approved)->count(),
-            'rejected' => Idea::where('team_id', $teamId)
-                ->where('status', IdeaStatus::Rejected)->count(),
+            'total_ideas' => (clone $base)->whereIn('status', ['submitted', 'approved', 'rejected'])->count(),
+            'pending' => (clone $base)->where('status', IdeaStatus::Submitted)->count(),
+            'approved' => (clone $base)->where('status', IdeaStatus::Approved)->count(),
+            'rejected' => (clone $base)->where('status', IdeaStatus::Rejected)->count(),
         ];
     }
 
@@ -76,6 +134,11 @@ class DashboardRepository
     {
         return User::where('team_id', $teamId)
             ->select('id', 'name', 'reward_points')
+            ->withCount([
+                'ideas as total_ideas' => function ($q) {
+                    $q->whereIn('status', ['submitted', 'approved', 'rejected']);
+                }
+            ])
             ->orderByDesc('reward_points')
             ->get();
     }
@@ -93,32 +156,27 @@ class DashboardRepository
             'team_leads' => User::whereHas('role', fn($q) => $q->where('name', 'team_lead'))->count(),
         ];
     }
-    
-    public function recentIdeas(int $userId)
+
+    public function recentIdeas(int $userId, $request)
     {
-        return Idea::where('user_id', $userId)
-            ->latest()
+        $query = Idea::where('user_id', $userId);
+
+        $query = $this->applyDateFilter($query, $request);
+
+        return $query->latest()
             ->limit(5)
             ->get(['id', 'title', 'status', 'created_at']);
     }
 
-    public function teamIdeasChart(int $teamId, string $range)
+    public function teamIdeasChart(int $teamId, $request)
     {
-        $startDate = match ($range) {
-            '7days'   => now()->subDays(7),
-            '30days'  => now()->subDays(30),
-            default   => now()->subMonths(6),
-        };
+        $query = Idea::where('team_id', $teamId);
 
-        $ideas = Idea::where('team_id', $teamId)
-            ->where('created_at', '>=', $startDate)
-            ->get()
-            ->groupBy(function ($item) use ($range) {
-                return match ($range) {
-                    '7days', '30days' => $item->created_at->format('d M'),
-                    default           => $item->created_at->format('M'),
-                };
-            });
+        $query = $this->applyDateFilter($query, $request);
+
+        $ideas = $query->get()->groupBy(function ($item) {
+            return $item->created_at->format('d M');
+        });
 
         return [
             'labels' => $ideas->keys(),
@@ -126,10 +184,31 @@ class DashboardRepository
         ];
     }
 
-    public function teamRecentIdeas(int $teamId)
+    public function employeeIdeasChart(int $userId, $request)
     {
-        return Idea::where('team_id', $teamId)
-            ->latest()
+        $user= User::find($userId);
+        $query = Idea::where('team_id', $user->team_id);
+
+        $query = $this->applyDateFilter($query, $request);
+
+        $ideas = $query->get()->groupBy(function ($item) {
+            return $item->created_at->format('d M');
+        });
+
+        return [
+            'labels' => $ideas->keys(),
+            'data'   => $ideas->map->count()->values(),
+        ];
+    }
+
+
+    public function teamRecentIdeas(int $teamId, $request)
+    {
+        $query = Idea::where('team_id', $teamId);
+
+        $query = $this->applyDateFilter($query, $request);
+
+        return $query->latest()
             ->limit(5)
             ->get(['id', 'title', 'status', 'created_at', 'user_id'])
             ->load('user:id,name');
@@ -137,8 +216,8 @@ class DashboardRepository
 
     public function recentIdeasForAdmin()
     {
-        return Idea::where('status', '!=' , IdeaStatus::Draft )
-             ->latest()
+        return Idea::where('status', '!=', IdeaStatus::Draft)
+            ->latest()
             ->limit(5)
             ->get();
     }
@@ -153,19 +232,33 @@ class DashboardRepository
         ])->get();
     }
 
-    public function employeeStats(int $userId)
+    public function employeeStats(int $userId, $request)
     {
+        $base = Idea::where('user_id', $userId);
+
+        $base = $this->applyDateFilter($base, $request);
+
         $user = User::find($userId);
 
         return [
-            'total_ideas' => Idea::where('user_id', $userId)->count(),
-            'pending' => Idea::where('user_id', $userId)
-                ->where('status', IdeaStatus::Submitted)->count(),
-            'approved' => Idea::where('user_id', $userId)
-                ->where('status', IdeaStatus::Approved)->count(),
-            'rejected' => Idea::where('user_id', $userId)
-                ->where('status', IdeaStatus::Rejected)->count(),
+            'total_ideas' => (clone $base)->count(),
+            'drafts' => (clone $base)->where('status', IdeaStatus::Draft)->count(),
+            'pending' => (clone $base)->where('status', IdeaStatus::Submitted)->count(),
+            'approved' => (clone $base)->where('status', IdeaStatus::Approved)->count(),
+            'rejected' => (clone $base)->where('status', IdeaStatus::Rejected)->count(),
             'reward_points' => $user?->reward_points ?? 0,
         ];
+    }
+
+    private function applyDateFilter($query, $request)
+    {
+        if ($request->from_date && $request->to_date) {
+            $query->whereBetween('created_at', [
+                $request->from_date . ' 00:00:00',
+                $request->to_date . ' 23:59:59'
+            ]);
+        }
+
+        return $query; 
     }
 }

@@ -7,6 +7,34 @@
 
 <div class="max-w-7xl mx-auto space-y-8">
 
+{{-- ================= DATE FILTER ================= --}}
+<form method="GET" action="{{ route('dashboard') }}" class="flex gap-4 items-center mb-6">
+
+    <div>
+        <input type="date"
+               name="from_date"
+               value="{{ request('from_date') }}"
+               class="border px-3 py-2 rounded-lg">
+    </div>
+
+    <div>
+        <input type="date"
+               name="to_date"
+               value="{{ request('to_date') }}"
+               class="border px-3 py-2 rounded-lg">
+    </div>
+
+    <button type="submit"
+            class="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+        Apply
+    </button>
+
+    <a href="{{ route('dashboard') }}"
+       class="px-4 py-2 bg-gray-200 rounded-lg">
+        Reset
+    </a>
+
+</form>
     {{-- ================= IDEA STATS ================= --}}
     <div>
         <h2 class="text-lg font-semibold mb-4">Ideas Overview</h2>
@@ -18,10 +46,10 @@
                 <h3 class="text-2xl font-bold">{{ $data['stats']['total_ideas'] }}</h3>
             </div>
 
-            <!-- <div class="bg-gray-500 text-white p-5 rounded-xl shadow">
+            {{-- <div class="bg-gray-500 text-white p-5 rounded-xl shadow">
                 <p>Draft</p>
                 <h3 class="text-2xl font-bold">{{ $data['stats']['draft'] }}</h3>
-            </div> -->
+            </div> --}}
 
             <div class="bg-purple-500 text-white p-5 rounded-xl shadow">
                 <p>Submitted</p>
@@ -142,25 +170,25 @@
                     <a href="{{ route('ideas.index') }}" class="text-sm text-indigo-600">View All</a>
                 </div>
 
-                <table class="min-w-full text-sm">
+                <table class="min-w-full bg-white shadow rounded border text-center text-sm">
 
                     {{-- Header --}}
-                    <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                    <thead class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
                         <tr>
-                            <th class="px-6 py-3 text-center">#</th>
-                            <th class="px-6 py-3 text-center">Title</th>
-                            <th class="px-6 py-3 text-center">Submitted By</th>
-                            <th class="px-6 py-3 text-center">Status</th>
+                            <th class="px-6 py-3 text-center border border-gray-300">#</th>
+                            <th class="px-6 py-3 text-center border border-gray-300">Title</th>
+                            <th class="px-6 py-3 text-center border border-gray-300">Submitted By</th>
+                            <th class="px-6 py-3 text-center border border-gray-300">Status</th>
                         </tr>
                     </thead>
 
                     <tbody class="divide-y">
                          @foreach($data['recent_ideas'] as $idea)
                          <tr>
-                            <td class="text-center">{{$loop->iteration}}</td>
-                            <td class="text-center">{{ $idea->title }}</td>
-                            <td class="text-center">{{ $idea->submitted_at }}</td>
-                            <td class="text-center">{{ $idea->status }}</td>
+                            <td class="text-center border border-gray-300">{{$loop->iteration}}</td>
+                            <td class="text-center border border-gray-300">{{ $idea->title }}</td>
+                            <td class="text-center border border-gray-300">{{ $idea->submitted_at }}</td>
+                            <td class="text-center border border-gray-300">{{ $idea->status }}</td>
                         </tr>                
                 @endforeach                        
                        

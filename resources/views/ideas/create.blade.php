@@ -7,21 +7,19 @@
 
 @php use Illuminate\Support\Str; @endphp
 
-
-
-
+<!-- 
 @if ($errors->any())
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        <strong class="font-bold">Whoops!</strong>
-        <span class="block">There were some problems with your input.</span>
+<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    <strong class="font-bold">Whoops!</strong>
+    <span class="block">There were some problems with your input.</span>
 
-        <ul class="mt-2 list-disc list-inside text-sm">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+    <ul class="mt-2 list-disc list-inside text-sm">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif -->
 
 
 
@@ -40,85 +38,111 @@
 
                 {{-- Title --}}
                 <div>
-                    <label class="font-semibold">Title *</label>
+                    <label class="font-semibold">Title <span class="text-red-500">*</span></label>
                     <input type="text"
                         name="title"
                         value="{{ old('title') }}"
                         class="w-full border px-4 py-3 rounded-lg">
+                    @error('title')
+                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 {{-- Description --}}
                 <div>
-                    <label class="font-semibold">Description *</label>
+                    <label class="font-semibold">Description <span class="text-red-500">*</span></label>
                     <textarea name="description"
                         rows="5"
                         class="w-full border px-4 py-3 rounded-lg">{{ old('description') }}</textarea>
+                    @error('description')
+                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- SWOT --}}
+                <div>
+                    <label class="font-semibold">SWOT Analysis (Optional)</label>
+
+                    <textarea name="swot"
+                        rows="4"
+                        placeholder="Strengths, Weaknesses, Opportunities, Threats..."
+                        class="w-full border px-4 py-3 rounded-lg">{{ old('swot') }}</textarea>
+                    @error('swot')
+                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 {{-- Category & Impact --}}
                 <div class="grid grid-cols-2 gap-6">
-
                     <div>
-                        <label>Category *</label>
-                        <select name="category"
-                            class="w-full border px-4 py-3 rounded-lg">
+                        <label>Category <span class="text-red-500">*</span></label>
+                        <select name="category" class="w-full border px-4 py-3 rounded-lg">
                             <option value="">Select Category</option>
-                            <option value="HR">HR</option>
-                            <option value="Tech">Tech</option>
-                            <option value="Process">Process</option>
-                            <option value="Sales">Sales</option>
+
+                            <option value="HR" {{ old('category', $idea->category ?? '') == 'HR' ? 'selected' : '' }}>HR</option>
+
+                            <option value="Tech" {{ old('category', $idea->category ?? '') == 'Tech' ? 'selected' : '' }}>Tech</option>
+
+                            <option value="Process" {{ old('category', $idea->category ?? '') == 'Process' ? 'selected' : '' }}>Process</option>
+
+                            <option value="Sales" {{ old('category', $idea->category ?? '') == 'Sales' ? 'selected' : '' }}>Sales</option>
                         </select>
+
+                        @error('category')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
-                        <label>Impact Level *</label>
+                        <label>Impact Level <span class="text-red-500">*</span></label>
                         <div class="flex gap-4 mt-2">
 
                             <label>
-                                <input type="radio" name="impact_level" value="low">
+                                <input type="radio" name="impact_level" value="low"
+                                    {{ old('impact_level', $idea->impact_level ?? '') == 'low' ? 'checked' : '' }}>
                                 Low
                             </label>
 
                             <label>
-                                <input type="radio" name="impact_level" value="medium">
+                                <input type="radio" name="impact_level" value="medium"
+                                    {{ old('impact_level', $idea->impact_level ?? '') == 'medium' ? 'checked' : '' }}>
                                 Medium
                             </label>
 
                             <label>
-                                <input type="radio" name="impact_level" value="high">
+                                <input type="radio" name="impact_level" value="high"
+                                    {{ old('impact_level', $idea->impact_level ?? '') == 'high' ? 'checked' : '' }}>
                                 High
                             </label>
 
                         </div>
+
+                        @error('impact_level')
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                 </div>
 
+
                 {{-- Attachments --}}
-                <div class="grid grid-cols-2 gap-6">
+                <div class="border-2 border-dashed rounded-xl p-6 text-center">
+                    <p class="font-semibold mb-2">
+                        Upload Attachments (Max 5)
+                    </p>
 
-                    {{-- Images --}}
-                    <div class="border-2 border-dashed rounded-xl p-6 text-center">
-                        <p class="font-semibold mb-2">Upload Images (Max 5)</p>
+                    <p class="text-sm text-gray-500 mb-2">
+                        Supported: Images, Videos, Documents (PDF, DOC, etc.)
+                    </p>
 
-                        <input type="file"
-                            name="images[]"
-                            multiple
-                            accept="image/*"
-                            class="w-full">
-                    </div>
+                    <input type="file"
+                        name="attachments[]"
+                        multiple
+                        class="w-full">
 
-                    {{-- Videos --}}
-                    <div class="border-2 border-dashed rounded-xl p-6 text-center">
-                        <p class="font-semibold mb-2">Upload Videos (Max 2)</p>
-
-                        <input type="file"
-                            name="videos[]"
-                            multiple
-                            accept="video/mp4"
-                            class="w-full">
-                    </div>
-
+                    @error('attachments.*')
+                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    @enderror
                 </div>
 
             </div>

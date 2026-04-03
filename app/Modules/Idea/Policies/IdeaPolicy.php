@@ -12,13 +12,13 @@ class IdeaPolicy
     {
 
         return $user->id === $idea->user_id
-            && $idea->status === IdeaStatus::Draft;
+            && ($idea->status === IdeaStatus::Draft || $idea->status === IdeaStatus::Feedback) ;
     }
 
     public function submit(User $user, Idea $idea)
     {
         return $user->id === $idea->user_id
-            && $idea->status === IdeaStatus::Draft;
+            && ($idea->status === IdeaStatus::Draft || $idea->status === IdeaStatus::Feedback);
     }
 
     public function review(User $user, Idea $idea)
@@ -39,9 +39,18 @@ class IdeaPolicy
 
     public function view(User $user, Idea $idea)
     {
+        // ✅ Approved ideas → visible to everyone
+        if ($idea->status === IdeaStatus::Approved) {
+            return true;
+        }
+
         // 🚫 Draft ideas are PRIVATE
         // Only owner can see them (no exception)
         if ($idea->status === IdeaStatus::Draft) {
+            return $idea->user_id === $user->id;
+        }
+
+         if ($idea->status === IdeaStatus::Feedback) {
             return $idea->user_id === $user->id;
         }
 

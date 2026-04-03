@@ -12,6 +12,22 @@
     </h2>
 </div>
 
+<form method="GET" class="flex gap-4 mb-6">
+
+    <input type="date" name="from_date" value="{{ request('from_date') }}" class="border px-3 py-2 rounded">
+
+    <input type="date" name="to_date" value="{{ request('to_date') }}" class="border px-3 py-2 rounded">
+
+    <button class="bg-indigo-600 text-white px-4 py-2 rounded">
+        Apply
+    </button>
+
+    <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-200 rounded">
+        Reset
+    </a>
+
+</form>
+
 {{-- STATS CARDS --}}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
@@ -47,31 +63,10 @@
     {{-- Performance --}}
     <div class="col-span-2 bg-white rounded-2xl shadow p-6">
 
-       <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-4">
 
-    <h3 class="font-semibold text-lg">My Team's Performance</h3>
-
-    <form method="GET">
-        <select name="range"
-                onchange="this.form.submit()"
-                class="border rounded px-3 py-1 text-sm">
-
-            <option value="6months" {{ request('range') == '6months' ? 'selected' : '' }}>
-                Last 6 Months
-            </option>
-
-            <option value="30days" {{ request('range') == '30days' ? 'selected' : '' }}>
-                Last 30 Days
-            </option>
-
-            <option value="7days" {{ request('range') == '7days' ? 'selected' : '' }}>
-                Last 7 Days
-            </option>
-
-        </select>
-    </form>
-
-</div>
+            <h3 class="font-semibold text-lg">My Team's Performance</h3>
+        </div>
 
         {{-- Chart Placeholder --}}
         <canvas id="performanceChart" height="120"></canvas>
@@ -107,25 +102,25 @@
         </div>
 
         @foreach($data['recent_ideas'] ?? [] as $idea)
-            <div class="mb-4 border-b pb-3">
+        <div class="mb-4 border-b pb-3">
 
-                <p class="font-medium">{{ $idea->title }}</p>
+            <p class="font-medium">{{ $idea->title }}</p>
 
-                <span class="text-xs px-2 py-1 rounded
+            <span class="text-xs px-2 py-1 rounded
                     @if($idea->status->value === 'approved') bg-green-100 text-green-700
                     @elseif($idea->status->value === 'rejected') bg-red-100 text-red-700
                     @elseif($idea->status->value === 'submitted') bg-purple-100 text-purple-700
                     @else bg-yellow-100 text-yellow-700
                     @endif">
 
-                    {{ ucfirst($idea->status->value) }}
-                </span>
+                {{ ucfirst($idea->status->value) }}
+            </span>
 
-                <p class="text-xs text-gray-400 mt-1">
-                    {{ $idea->created_at->diffForHumans() }}
-                </p>
+            <p class="text-xs text-gray-400 mt-1">
+                {{ $idea->created_at->diffForHumans() }}
+            </p>
 
-            </div>
+        </div>
         @endforeach
 
     </div>
@@ -143,26 +138,27 @@
         </div>
 
         @foreach($data['team_members'] as $member)
-            <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-4">
 
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        {{ strtoupper(substr($member->name, 0, 1)) }}
-                    </div>
-
-                    <div>
-                        <p class="font-medium">{{ $member->name }}</p>
-                        <p class="text-xs text-gray-400">
-                            {{ $member->ideas_count ?? 0 }} ideas
-                        </p>
-                    </div>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                    {{ strtoupper(substr($member->name, 0, 1)) }}
                 </div>
 
-                <span class="text-sm text-indigo-600">
-                    {{ $member->reward_points }} pts
-                </span>
-
+                <div>
+                    <p class="font-medium">{{ $member->name }}</p>
+                    <p class="text-xs text-gray-400">
+                      
+                        {{ $member->total_ideas ?? 0 }} ideas
+                    </p>
+                </div>
             </div>
+
+            <span class="text-sm text-indigo-600">
+                {{ $member->reward_points }} pts
+            </span>
+
+        </div>
         @endforeach
 
     </div>
@@ -173,63 +169,48 @@
         <h3 class="font-semibold text-lg mb-4">Leaderboard</h3>
 
         @foreach($data['team_members']->sortByDesc('reward_points') as $index => $member)
-            <div class="flex justify-between mb-3">
+        <div class="flex justify-between mb-3">
 
-                <span>
-                    {{ $index + 1 }}. {{ $member->name }}
-                </span>
+            <span>
+                {{ $index + 1 }}. {{ $member->name }}
+            </span>
 
-                <span class="font-semibold text-indigo-600">
-                    {{ $member->reward_points }}
-                </span>
+            <span class="font-semibold text-indigo-600">
+                {{ $member->reward_points }}
+            </span>
 
-            </div>
+        </div>
         @endforeach
 
     </div>
 
-</div>
+</div> 
 
 @endsection
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-
+     document.addEventListener("DOMContentLoaded", function() {
     const canvas = document.getElementById('performanceChart');
+        if (!canvas) return;
 
-    if (!canvas) {
-        console.error('Canvas not found');
-        return;
-    }
+        const ctx = canvas.getContext('2d');
 
-    const ctx = canvas.getContext('2d'); // ✅ IMPORTANT FIX
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: @json($data['chart']['labels']->values()),
-            datasets: [{
-                label: 'Ideas',
-                data: @json($data['chart']['data']->values()),
-                borderColor: '#6366f1',
-                backgroundColor: 'rgba(99,102,241,0.1)',
-                tension: 0.4,
-                fill: true,
-                pointRadius: 4,
-                pointBackgroundColor: '#6366f1'
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($data['chart']['labels'] ?? []),
+                datasets: [{
+                    label: 'Ideas',
+                    data: @json($data['chart']['data'] ?? []),
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99,102,241,0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
             }
-        }
-    });
+        });
 
-});
+    });
 </script>

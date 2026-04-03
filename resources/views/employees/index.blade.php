@@ -1,4 +1,5 @@
 @php
+
 function sortUrl($column) {
 $direction = request('sort') === $column && request('direction') === 'asc'
 ? 'desc'
@@ -259,11 +260,11 @@ return request()->fullUrlWithQuery([
             {{-- Table Header --}}
             <thead class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
                 <tr>
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <input type="checkbox" id="selectAll">
                     </th>
 
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <a href="{{ sortUrl('name') }}" class="flex justify-center items-center gap-1">
                             Name
                             @if(request('sort') === 'name')
@@ -272,7 +273,7 @@ return request()->fullUrlWithQuery([
                         </a>
                     </th>
 
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <a href="{{ sortUrl('emp_code') }}" class="flex justify-center items-center gap-1">
                             Emp Code
                             @if(request('sort') === 'emp_code')
@@ -281,7 +282,7 @@ return request()->fullUrlWithQuery([
                         </a>
                     </th>
 
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <a href="{{ sortUrl('email') }}" class="flex justify-center items-center gap-1">
                             Email
                             @if(request('sort') === 'email')
@@ -292,7 +293,7 @@ return request()->fullUrlWithQuery([
 
 
 
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <a href="{{ sortUrl('employee_code') }}" class="flex justify-center items-center gap-1">
                             Designation
                             @if(request('sort') === 'employee_code')
@@ -301,7 +302,7 @@ return request()->fullUrlWithQuery([
                         </a>
                     </th>
 
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <a href="{{ sortUrl('team') }}" class="flex justify-center items-center gap-1">
                             Team
                             @if(request('sort') === 'team')
@@ -310,7 +311,7 @@ return request()->fullUrlWithQuery([
                         </a>
                     </th>
 
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <a href="{{ sortUrl('status') }}" class="flex justify-center items-center gap-1">
                             Status
                             @if(request('sort') === 'status')
@@ -319,7 +320,7 @@ return request()->fullUrlWithQuery([
                         </a>
                     </th>
 
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         <a href="{{ sortUrl('created_at') }}" class="flex justify-center items-center gap-1">
                             Created
                             @if(request('sort') === 'created_at')
@@ -327,7 +328,7 @@ return request()->fullUrlWithQuery([
                             @endif
                         </a>
                     </th>
-                    <th class="px-4 py-3">
+                    <th class="px-4 py-3 border border-gray-300">
                         Action
                     </th>
                 </tr>
@@ -337,13 +338,13 @@ return request()->fullUrlWithQuery([
             <tbody>
                 @foreach($employees as $employee)
                 <tr class="border-t hover:bg-gray-50 transition">
-                    <td class="px-4 py-3">
+                    <td class="px-4 py-3 border border-gray-300">
                         <input type="checkbox"
                             name="ids[]"
                             value="{{ $employee->id }}"
                             class="rowCheckbox">
                     </td>
-                    <td class="px-4 py-3 font-medium">
+                    <td class="px-4 py-3 border border-gray-300 font-medium">
                         <div class="flex items-center gap-4">
 
                             <!-- Profile Image -->
@@ -354,18 +355,18 @@ return request()->fullUrlWithQuery([
                             </div>
 
                             <!-- Employee Name -->
-                            <span class="text-gray-800 font-semibold">
-                                {{ $employee->name }}
+                            <span class="text-gray-800 font-semibold" title="{{ $employee->name }}">                                
+                                {{ Str::limit($employee->name, 10) }}
                             </span>
 
                         </div>
 
                     </td>
-                    <td class="px-4 py-3 font-medium">{{ $employee->employee_code }}</td>
-                    <td class="px-4 py-3">{{ $employee->email }}</td>
-                    <td class="px-4 py-3">{{ $employee->role?->name }}</td>
-                    <td class="px-4 py-3">{{ $employee->team?->name ?? '-' }}</td>
-                    <td class="px-4 py-3">
+                    <td class="px-4 py-3 border border-gray-300 font-medium" title="{{ $employee->employee_code }}">{{ \Illuminate\Support\Str::limit($employee->employee_code, 7) }}</td>
+                    <td class="px-4 py-3 border border-gray-300" title="{{ $employee->email }}">{{ \Illuminate\Support\Str::limit($employee->email, 10) }}</td>
+                    <td class="px-4 py-3 border border-gray-300">{{ $employee->role?->name }}</td>
+                    <td class="px-4 py-3 border border-gray-300" title="{{ $employee->team?->name ?? '-' }}">{{ \Illuminate\Support\Str::limit($employee->name, 7) }}</td>
+                    <td class="px-4 py-3 border border-gray-300">
                         <span class="px-2 py-1 rounded text-xs 
                                 {{ $employee->status === 'active' 
                                     ? 'bg-green-100 text-green-700' 
@@ -373,10 +374,10 @@ return request()->fullUrlWithQuery([
                             {{ ucfirst($employee->status) }}
                         </span>
                     </td>
-                    <td class="px-4 py-3">
+                    <td class="px-4 py-3 border border-gray-300">
                         {{ $employee->created_at->format('d M Y') }}
                     </td>
-                    <td class="px-4 py-3 align-middle text-center">
+                    <td class="px-4 py-3 border border-gray-300 align-middle text-center">
 
     <div class="flex items-center justify-center gap-2 h-full">
 

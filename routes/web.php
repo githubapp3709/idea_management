@@ -45,12 +45,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/ideas', [IdeaController::class, 'store'])->name('ideas.store');
     Route::get('/ideas/{idea}/edit', [IdeaController::class, 'edit'])->name('ideas.edit');
     Route::put('/ideas/{idea}', [IdeaController::class, 'update'])->name('ideas.update');
+    Route::get('/ideas/approved', [IdeaController::class, 'approved'])->name('ideas.approved');
     Route::get('/ideas/{idea}', [IdeaController::class, 'show'])->name('ideas.show');
     Route::delete('/ideas/attachments/{attachment}', [IdeaController::class, 'deleteAttachment'])->name('ideas.attachments.delete');
     Route::delete('/ideas/{idea}', [IdeaController::class, 'destroy'])->name('ideas.destroy');
 
     Route::post('/ideas/{idea}/submit', [IdeaController::class, 'submit'])->name('ideas.submit');
     Route::post('/ideas/{idea}/review', [IdeaController::class, 'review'])->name('ideas.review');
+   
 
     //  ---------------Notification----------------
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
