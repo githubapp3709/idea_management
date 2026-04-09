@@ -1,9 +1,13 @@
 <ul class="space-y-2 px-4">
-    <li><a href="{{ route('dashboard') }}" class="menu flex items-center gap-2"><svg class="w-5 h-5" viewBox=" 0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <li><a href="{{ route('dashboard') }}" class="menu flex items-center gap-2 {{ request()->routeIs('dashboard') 
+                ? 'bg-indigo-200 text-white shadow-md' 
+                : 'text-gray-700 hover:bg-gray-100' }}"><svg class="w-5 h-5" viewBox=" 0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0L0 6V8H1V15H4V10H7V15H15V8H16V6L14 4.5V1H11V2.25L8 0ZM9 10H12V13H9V10Z" fill="#000000" />
             </svg>
             Dashboard</a></li>
-    <li><a href="{{ route('ideas.index') }}" class="menu flex items-center gap-2"><svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+    <li><a href="{{ route('ideas.index') }}" class="menu flex items-center gap-2 {{ request()->routeIs('ideas.index') 
+                ? 'bg-indigo-200 text-white shadow-md' 
+                : 'text-gray-700 hover:bg-gray-100' }}"><svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                 class="w-5 h-5" viewBox="0 0 208 256" enable-background="new 0 0 208 256" xml:space="preserve">
                 <path d="M2,35c0,0,0,184.486,0,186c0,17.87,14.416,32.192,32.084,32.899V254H205.82v-9.288c-13.226,0-23.928-10.702-23.928-23.928
 	s10.702-23.928,23.928-23.928v-0.202V2H35.8C17.526,2,2,16.726,2,35z M172.603,220.683c0,9.389,4.038,17.87,10.298,23.928H35.397
@@ -16,7 +20,9 @@
 	c-5.547-5.907-8.99-13.813-9.131-22.522C70.358,78.132,85.148,62.71,103.566,62.276z M61.225,49.783L76.012,64.57l-4.45,4.45
 	L56.776,54.233L61.225,49.783z" />
             </svg>Team Ideas</a></li>
-    <li><a href="{{ route('ideas.approved') }}" class="menu flex items-center gap-2">
+    <li><a href="{{ route('ideas.approved') }}" class="menu flex items-center gap-2 {{ request()->routeIs('ideas.approved') 
+                ? 'bg-indigo-200 text-white shadow-md' 
+                : 'text-gray-700 hover:bg-gray-100' }}" >
         <svg class="w-5 h-5" viewBox="0 -4 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                     <g id="Dribbble-Light-Preview" transform="translate(-260.000000, -4563.000000)" fill="#000000">

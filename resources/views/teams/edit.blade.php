@@ -5,55 +5,55 @@
 
 @section('content')
 
-<div x-data="teamEditor()" class="max-w-6xl mx-auto bg-white p-10 rounded-2xl shadow-lg">
+<div x-data="teamEditor()" class="max-w-6xl mx-auto bg-white p-4 sm:p-6 lg:p-10 rounded-2xl shadow-lg space-y-6">
 
     <form method="POST" action="{{ route('teams.update', $team) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
-        {{-- Top Section --}}
-        <div class="grid grid-cols-2 gap-10 mb-8">
+        {{-- ================= TOP SECTION ================= --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-            {{-- Upload Image --}}
-            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 flex items-center gap-6 bg-gray-50">
+            {{-- Image --}}
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 bg-gray-50">
 
-                <div class="w-20 h-20 rounded-lg overflow-hidden">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden shrink-0">
                     <img src="{{ $team->image_url }}"
                         class="w-full h-full object-cover">
                 </div>
 
-                <div>
-                    <p class="font-semibold text-lg">Update Team Image</p>
-                    <p class="text-sm text-gray-500">Choose new image (optional)</p>
-                    <p class="text-xs text-gray-400 mt-1">JPG, PNG, GIF up to 5MB</p>
+                <div class="text-center sm:text-left">
+                    <p class="font-semibold">Update Team Image</p>
+                    <p class="text-xs text-gray-500">JPG, PNG, GIF up to 5MB</p>
 
-                    <input type="file" name="image" class="mt-3 text-sm">
+                    <input type="file" name="image" class="mt-2 text-sm w-full">
                 </div>
+
             </div>
 
-            {{-- Team Name --}}
+            {{-- Name --}}
             <div>
-                <label class="block text-lg font-semibold mb-3">Team Name</label>
+                <label class="block font-semibold mb-2">Team Name</label>
                 <input type="text"
                     name="name"
                     value="{{ old('name', $team->name) }}"
-                    class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    class="w-full border rounded-lg px-3 py-2 sm:px-4 sm:py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                     required>
             </div>
 
         </div>
 
-        {{-- Search --}}
-        <div class="mb-6">
+        {{-- ================= SEARCH ================= --}}
+        <div class="py-2">
             <input type="text"
                 x-model="search"
                 placeholder="Search employees..."
-                class="w-full border rounded-xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                class="w-full border rounded-xl px-4 py-2 sm:px-5 sm:py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400">
         </div>
 
-        {{-- Errors --}}
+        {{-- ================= ERRORS ================= --}}
         @if ($errors->any())
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <ul class="list-disc pl-5">
                 @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -62,60 +62,62 @@
         </div>
         @endif
 
-        {{-- Dual Panel --}}
-        <div class="grid grid-cols-3 gap-8">
+        {{-- ================= DUAL PANEL ================= --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {{-- Available Employees --}}
-            <div class="bg-gray-50 rounded-xl p-5 shadow-sm">
-                <h3 class="font-semibold text-gray-700 mb-4">Available Employees</h3>
+            {{-- Available --}}
+            <div class="bg-gray-50 rounded-xl p-4 sm:p-5 shadow-sm">
 
-                <div class="space-y-3 max-h-72 overflow-y-auto">
+                <h3 class="font-semibold mb-3">Available Employees</h3>
+
+                <div class="space-y-2 max-h-60 overflow-y-auto">
                     <template x-for="employee in filteredAvailable()" :key="employee.id">
-                        <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                        <div class="flex justify-between items-center bg-white p-2 sm:p-3 rounded shadow-sm">
 
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2 sm:gap-3">
                                 <input type="checkbox"
                                     @click="addMember(employee)"
                                     class="w-4 h-4">
-                                <span x-text="employee.name"></span>
+                                <span class="text-sm sm:text-base" x-text="employee.name"></span>
                             </div>
 
                         </div>
                     </template>
                 </div>
+
             </div>
 
-            {{-- Arrows --}}
-            <div class="flex items-center justify-center text-3xl text-gray-400">
+            {{-- Arrow --}}
+            <div class="hidden lg:flex items-center justify-center text-2xl text-gray-400">
                 ⇄
             </div>
 
-            {{-- Selected Members --}}
-            <div class="bg-gray-50 rounded-xl p-5 shadow-sm">
+            {{-- Selected --}}
+            <div class="bg-gray-50 rounded-xl p-4 sm:p-5 shadow-sm">
 
-                <h3 class="font-semibold text-gray-700 mb-4">Team Members</h3>
+                <h3 class="font-semibold mb-3">Team Members</h3>
 
-                {{-- Team Lead Highlight --}}
-                <div class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg mb-4 text-sm">
-                    ⭐ Choose Team Lead
+                <div class="bg-indigo-100 text-indigo-700 px-3 py-2 rounded mb-3 text-xs sm:text-sm text-center">
+                    ⭐ Select Team Leader
                 </div>
 
-                <div class="space-y-3 max-h-72 overflow-y-auto">
-                    <template x-for="member in selected" :key="member.id">
-                        <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow-sm">
+                <div class="space-y-2 max-h-60 overflow-y-auto">
 
-                            <div class="flex items-center gap-3">
+                    <template x-for="member in selected" :key="member.id">
+                        <div class="flex justify-between items-center bg-white p-2 sm:p-3 rounded shadow-sm">
+
+                            <div class="flex items-center gap-2 sm:gap-3">
                                 <input type="radio"
                                     name="leader_id"
                                     :value="member.id"
                                     :checked="member.id == {{ $team->team_lead_id ?? 'null' }}"
                                     class="w-4 h-4">
-                                <span x-text="member.name"></span>
+                                <span class="text-sm sm:text-base" x-text="member.name"></span>
                             </div>
 
                             <button type="button"
                                 @click="removeMember(member)"
-                                class="text-red-500 font-bold">
+                                class="text-red-500 text-sm">
                                 ✕
                             </button>
 
@@ -126,21 +128,24 @@
                     </template>
 
                     <p x-show="selected.length === 0"
-                        class="text-gray-400 text-sm">
+                        class="text-gray-400 text-sm text-center">
                         No members selected
                     </p>
+
                 </div>
 
             </div>
 
         </div>
 
-        {{-- Submit --}}
-        <div class="mt-10 text-center">
+        {{-- ================= SUBMIT ================= --}}
+        <div class="mt-6">
+
             <button type="submit"
-                class="px-10 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-md hover:scale-105 transition">
+                class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow hover:scale-105 transition">
                 Update Team
             </button>
+
         </div>
 
     </form>
@@ -148,29 +153,29 @@
 </div>
 
 <script>
-    function teamEditor() {
-        return {
-            search: '',
-            available: @json($availableEmployees),
-            selected: @json($selectedMembers),
+function teamEditor() {
+    return {
+        search: '',
+        available: @json($availableEmployees),
+        selected: @json($selectedMembers),
 
-            filteredAvailable() {
-                return this.available.filter(e =>
-                    e.name.toLowerCase().includes(this.search.toLowerCase())
-                );
-            },
+        filteredAvailable() {
+            return this.available.filter(e =>
+                e.name.toLowerCase().includes(this.search.toLowerCase())
+            );
+        },
 
-            addMember(employee) {
-                this.selected.push(employee);
-                this.available = this.available.filter(e => e.id !== employee.id);
-            },
+        addMember(employee) {
+            this.selected.push(employee);
+            this.available = this.available.filter(e => e.id !== employee.id);
+        },
 
-            removeMember(member) {
-                this.available.push(member);
-                this.selected = this.selected.filter(e => e.id !== member.id);
-            }
+        removeMember(member) {
+            this.available.push(member);
+            this.selected = this.selected.filter(e => e.id !== member.id);
         }
     }
+}
 </script>
 
 @endsection

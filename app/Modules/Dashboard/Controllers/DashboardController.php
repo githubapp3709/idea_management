@@ -22,7 +22,7 @@ class DashboardController extends Controller
                 'data' => $this->dashboardService->admin($request)
             ]);
         }
-
+ 
         if ($user->role->name === 'team_lead') {
 
             return view('dashboard.team_lead', [

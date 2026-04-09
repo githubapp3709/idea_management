@@ -43,24 +43,57 @@ class DashboardRepository
 
         /* ================= TOP CONTRIBUTORS ================= */
 
-        $topContributors = User::whereHas('ideas', function ($q) use ($request) {
-            $this->applyDateFilter($q, $request);
-        })
-            ->select('id', 'name', 'reward_points')
-            ->orderByDesc('reward_points')
+        $topContributors = User::with([
+            'team:id,name',
+            'ideas.rewards' => function ($q) use ($request) {
+                $this->applyDateFilter($q, $request); // ✅ NOW USING COMMON FILTER
+            }
+        ])
+            ->get()
+            ->map(function ($user) {
+
+                $total = $user->ideas->sum(function ($idea) {
+                    return $idea->rewards->sum('points');
+                });
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'team_name' => $user->team?->name ?? 'No Team',
+                    'reward_points' => $total,
+                ];
+            })
+            ->filter(fn($u) => $u['reward_points'] > 0) // optional
+            ->sortByDesc('reward_points')
             ->take(5)
-            ->get();
+            ->values();
 
         /* ================= TOP TEAMS ================= */
 
-        $topTeams = Team::withSum([
-            'users as total_points' => function ($q) use ($request) {
-                $this->applyDateFilter($q, $request);
+        $topTeams = Team::with([
+            'users.ideas.rewards' => function ($q) use ($request) {
+                $this->applyDateFilter($q, $request); // ✅ CORRECT
             }
-        ], 'reward_points')
-            ->orderByDesc('total_points')
+        ])
+            ->get()
+            ->map(function ($team) {
+
+                $total = $team->users->sum(function ($user) {
+                    return $user->ideas->sum(function ($idea) {
+                        return $idea->rewards->sum('points');
+                    });
+                });
+
+                return [
+                    'id' => $team->id,
+                    'name' => $team->name,
+                    'reward_points' => $total,
+                ];
+            })
+            ->filter(fn($t) => $t['reward_points'] > 0)
+            ->sortByDesc('reward_points')
             ->take(5)
-            ->get();
+            ->values();
 
         /* ================= TEAM CARDS ================= */
 
@@ -114,6 +147,7 @@ class DashboardRepository
             'teams' => $teams,
         ];
     }
+
     /* ---------------- TEAM LEAD ---------------- */
 
     public function teamStats(int $teamId, $request)
@@ -130,42 +164,41 @@ class DashboardRepository
         ];
     }
 
-    public function teamLeaderboard(int $teamId)
+
+    public function teamLeaderboard(int $teamId, $request)
     {
         return User::where('team_id', $teamId)
-            ->select('id', 'name', 'reward_points')
-            ->withCount([
-                'ideas as total_ideas' => function ($q) {
+            ->with([
+                'ideas' => function ($q) use ($request) {
                     $q->whereIn('status', ['submitted', 'approved', 'rejected']);
+                    $this->applyDateFilter($q, $request); // ✅ filter ideas
+                },
+                'ideas.rewards' => function ($q) use ($request) {
+                    $this->applyDateFilter($q, $request); // ✅ filter rewards
                 }
             ])
-            ->orderByDesc('reward_points')
-            ->get();
-    }
+            ->withCount([
+                'ideas as total_ideas' => function ($q) use ($request) {
+                    $q->whereIn('status', ['submitted', 'approved', 'rejected']);
+                    $this->applyDateFilter($q, $request); // ✅ SAME filter on ideas
+                }
+            ])
+            ->get()
+            ->map(function ($user) {
 
-    /* ---------------- EMPLOYEE ---------------- */
+                $totalPoints = $user->ideas->sum(function ($idea) {
+                    return $idea->rewards->sum('points');
+                });
 
-    public function employeeStatsAll()
-    {
-        return [
-            'total' => User::count(),
-            'active' => User::where('status', 'active')->count(),
-            'inactive' => User::where('status', 'inactive')->count(),
-            'assigned' => User::whereNotNull('team_id')->count(),
-            'unassigned' => User::whereNull('team_id')->count(),
-            'team_leads' => User::whereHas('role', fn($q) => $q->where('name', 'team_lead'))->count(),
-        ];
-    }
-
-    public function recentIdeas(int $userId, $request)
-    {
-        $query = Idea::where('user_id', $userId);
-
-        $query = $this->applyDateFilter($query, $request);
-
-        return $query->latest()
-            ->limit(5)
-            ->get(['id', 'title', 'status', 'created_at']);
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'total_ideas' => $user->total_ideas,
+                    'total_points' => $totalPoints,
+                ];
+            })
+            ->sortByDesc('total_points')
+            ->values();
     }
 
     public function teamIdeasChart(int $teamId, $request)
@@ -184,9 +217,38 @@ class DashboardRepository
         ];
     }
 
+    public function teamRecentIdeas(int $teamId, $request)
+    {
+
+        $query = Idea::where('team_id', $teamId)
+            ->where('status', '!=', IdeaStatus::Draft);
+
+        $query = $this->applyDateFilter($query, $request);
+
+        return $query->latest()
+            ->limit(5)
+            ->get(['id', 'title', 'status', 'created_at', 'user_id'])
+            ->load('user:id,name');
+    }
+
+
+    /* ---------------- EMPLOYEE ---------------- */
+
+    public function recentIdeas(int $userId, $request)
+    {
+        $query = Idea::where('user_id', $userId);
+
+        $query = $this->applyDateFilter($query, $request);
+
+        return $query->latest()
+            ->limit(5)
+            ->get(['id', 'title', 'status', 'created_at']);
+    }
+
+
     public function employeeIdeasChart(int $userId, $request)
     {
-        $user= User::find($userId);
+        $user = User::find($userId);
         $query = Idea::where('team_id', $user->team_id);
 
         $query = $this->applyDateFilter($query, $request);
@@ -202,36 +264,6 @@ class DashboardRepository
     }
 
 
-    public function teamRecentIdeas(int $teamId, $request)
-    {
-        $query = Idea::where('team_id', $teamId);
-
-        $query = $this->applyDateFilter($query, $request);
-
-        return $query->latest()
-            ->limit(5)
-            ->get(['id', 'title', 'status', 'created_at', 'user_id'])
-            ->load('user:id,name');
-    }
-
-    public function recentIdeasForAdmin()
-    {
-        return Idea::where('status', '!=', IdeaStatus::Draft)
-            ->latest()
-            ->limit(5)
-            ->get();
-    }
-
-    public function teamCards()
-    {
-        return Team::withCount([
-            'ideas',
-            'ideas as approved_ideas_count' => function ($q) {
-                $q->where('status', IdeaStatus::Approved);
-            }
-        ])->get();
-    }
-
     public function employeeStats(int $userId, $request)
     {
         $base = Idea::where('user_id', $userId);
@@ -246,9 +278,22 @@ class DashboardRepository
             'pending' => (clone $base)->where('status', IdeaStatus::Submitted)->count(),
             'approved' => (clone $base)->where('status', IdeaStatus::Approved)->count(),
             'rejected' => (clone $base)->where('status', IdeaStatus::Rejected)->count(),
-            'reward_points' => $user?->reward_points ?? 0,
+            'reward_points' => Idea::where('user_id', $userId)
+                ->whereHas('rewards', function ($q) use ($request) {
+                    $this->applyDateFilter($q, $request);
+                })
+                ->with(['rewards' => function ($q) use ($request) {
+                    $this->applyDateFilter($q, $request);
+                }])
+                ->get()
+                ->sum(function ($idea) {
+                    return $idea->rewards->sum('points');
+                }),
         ];
     }
+
+
+    //----------------- date filter common function-----------------
 
     private function applyDateFilter($query, $request)
     {
@@ -259,6 +304,6 @@ class DashboardRepository
             ]);
         }
 
-        return $query; 
+        return $query;
     }
 }

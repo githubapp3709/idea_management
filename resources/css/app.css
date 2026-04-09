@@ -11,5 +11,61 @@
 }
 
 .menu-active {
-    @apply bg-indigo-600;
+    @apply bg-indigo-100;
+}
+
+
+/* ===== THEME SYSTEM ===== */
+:root {
+    --bg: #f3f4f6;
+    --text: #1f2937;
+    --card: #ffffff;
+    --sidebar:linear-gradient(to bottom right, rgb(207, 210, 211), rgb(131, 212, 199));
+}
+
+.theme-dark {
+    --bg: #111827;
+    --text: #f9fafb;
+    --card: #1f2937;
+    --sidebar: #fdfdfd;
+}
+
+/* ===== COMPONENT CLASSES ===== */
+.app-sidebar {
+    background: var(--sidebar);
+}
+
+.app-card {
+    background: var(--card);
+}
+
+.app-alert-success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+/* INPUT */
+.app-input {
+    @apply border px-3 py-2 rounded w-full;
+}
+
+/* BUTTONS */
+.app-btn-primary {
+    @apply bg-indigo-600 text-white px-4 py-2 rounded;
+}
+
+.app-btn-secondary {
+    @apply bg-gray-200 px-4 py-2 rounded;
+}
+
+/* CARD */
+.app-card {
+    background: var(--card);
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* STAT CARD */
+.app-stat-card {
+    @apply p-5 rounded-xl text-white shadow;
 }

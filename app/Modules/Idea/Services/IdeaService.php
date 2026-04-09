@@ -20,6 +20,15 @@ class IdeaService
         protected IdeaRepository $ideaRepo
     ) {}
 
+    public function index($request)
+    {
+        $query = $this->ideaRepo->baseQuery($request); // create baseQuery()
+
+        return [
+            'ideas' => $query->paginate(10)->withQueryString(),
+            'stats' => $this->ideaRepo->filteredStatsFromQuery($query),
+        ];
+    }
 
 
     public function create(array $data)
@@ -42,15 +51,15 @@ class IdeaService
             return;
         }
 
-        // 🔥 Get existing count
+        // Get existing count
         $existingCount = $idea->attachments()->count();
 
-        // 🔥 Max allowed
+        // Max allowed
         $max = 5;
 
         foreach (request()->file('attachments') as $file) {
 
-            // 🚫 STOP if limit reached
+            // STOP if limit reached
             if ($existingCount >= $max) {
                 break;
             }
@@ -146,7 +155,7 @@ class IdeaService
 
         event(new IdeaRejected($idea));
     }
-
+ 
 
     protected function sendBack(Idea $idea, ?string $remark)
     {
@@ -184,7 +193,7 @@ class IdeaService
     {
         return $this->ideaRepo->getFilteredIdeas($request, $user);
     }
- 
+
     public function getStats($user)
     {
         return $this->ideaRepo->getStats($user);

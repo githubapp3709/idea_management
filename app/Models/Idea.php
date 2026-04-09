@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\IdeaStatus;
+use App\Models\IdeaReward;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 
 class Idea extends Model
 {
@@ -40,7 +42,10 @@ class Idea extends Model
     public function attachments()
     {
         return $this->hasMany(IdeaAttachment::class);
-        
     }
-    
+
+    public function rewards()
+    {
+        return $this->hasMany(IdeaReward::class);
+    }
 }

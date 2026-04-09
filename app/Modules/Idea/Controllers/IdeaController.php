@@ -28,11 +28,17 @@ class IdeaController extends Controller
     {
         $user = Auth::user();
 
-        $ideas = $this->ideaService->getIdeas($request, $user);
+        // $ideas = $this->ideaService->getIdeas($request, $user);
 
-        $stats = $this->ideaService->getStats($user);
+        // $stats = $this->ideaService->getStats($user);
 
-        return view('ideas.index', compact('ideas', 'stats'));
+        // return view('ideas.index', compact('ideas', 'stats'));
+
+        $data = $this->ideaService->index($request);
+        return view('ideas.index', [
+            'ideas' => $data['ideas'],
+            'stats' => $data['stats'],
+        ]);
     }
 
 
@@ -62,7 +68,6 @@ class IdeaController extends Controller
     {
         $this->authorize('update', $idea);
 
-
         $previousIdeas = auth()->user()
             ->ideas()
             ->latest()
@@ -79,7 +84,7 @@ class IdeaController extends Controller
     }
 
 
- 
+
     public function update(UpdateIdeaRequest $request, Idea $idea)
     {
         $this->authorize('update', $idea);
@@ -105,7 +110,7 @@ class IdeaController extends Controller
             ->route('ideas.index')
             ->with('success', 'Your idea submitted for review');
     }
- 
+
 
     public function review(ReviewIdeaRequest $request, Idea $idea)
     {

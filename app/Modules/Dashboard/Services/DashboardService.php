@@ -16,7 +16,7 @@ class DashboardService
     public function admin($request)
     {
         return $this->repo->getAdminDashboardData($request);
-    }
+    } 
 
     /* ================= TEAM LEAD ================= */
 
@@ -24,7 +24,7 @@ class DashboardService
     {
         return [
             'stats' => $this->repo->teamStats($user->team_id, $request),
-            'team_members' => $this->repo->teamLeaderboard($user->team_id),
+            'team_members' => $this->repo->teamLeaderboard($user->team_id, $request),
             'chart' => $this->repo->teamIdeasChart($user->team_id, $request),
             'recent_ideas' => $this->repo->teamRecentIdeas($user->team_id, $request),
         ];

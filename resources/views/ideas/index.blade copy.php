@@ -5,28 +5,22 @@
 
 @section('content')
 
-{{-- OUTER WRAPPER (VERY IMPORTANT) --}}
+{{-- ✅ OUTER WRAPPER (VERY IMPORTANT) --}}
 <div class="w-full overflow-x-hidden">
 
-    {{-- MAIN CONTAINER --}}
+    {{-- ✅ MAIN CONTAINER --}}
     <div class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-0 space-y-6">
-        <div class="flex items-center justify-between  gap-3 mb-6">
-            <h2 class="text-lg font-semibold mb-4">Filter</h2>
-            <a href="{{ route('ideas.create') }}"
-                class="text-center px-4 py-2 bg-green-600 text-white rounded-lg">
-                Submit New Idea
-            </a>
-        </div>
+
         <form method="GET"
             action="{{ route('ideas.index') }}"
-            class="flex flex-col sm:flex-row gap-3 mb-6 bg-white px-2 py-2 rounded">
+            class="flex gap-3 w-full">
 
             {{-- Search --}}
             <input type="text"
                 name="search"
                 value="{{ request('search') }}"
                 placeholder="Search title, description, user..."
-                class="app-input border px-3 py-2 rounded">
+                class="app-input border px-3 py-2 rounded w-64">
 
             {{-- Status --}}
             <select name="status" class="app-input border px-3 py-2 rounded">
@@ -40,33 +34,31 @@
             </select>
 
             {{-- From Date --}}
-            <div class="flex gap-3">
-                <input type="date"
-                    name="from_date"
-                    value="{{ request('from_date') }}"
-                    class="app-input border px-3 py-2 rounded">
+            <input type="date"
+                name="from_date"
+                value="{{ request('from_date') }}"
+                class="app-input border px-3 py-2 rounded">
 
-                {{-- To Date --}}
-                <input type="date"
-                    name="to_date"
-                    value="{{ request('to_date') }}"
-                    class="app-input border px-3 py-2 rounded">
-            </div>
-            <div class="flex gap-3">
-                {{-- Buttons --}}
-                <button class="app-input bg-indigo-600 text-white px-4 py-2 rounded">
-                    Filter
-                </button>
+            {{-- To Date --}}
+            <input type="date"
+                name="to_date"
+                value="{{ request('to_date') }}"
+                class="app-input border px-3 py-2 rounded">
 
-                <a href="{{ route('ideas.index') }}"
-                    class="app-input bg-gray-200 px-4 py-2 rounded text-center">
-                    Reset
-                </a>
-            </div>
+            {{-- Buttons --}}
+            <button class="bg-indigo-600 text-white px-4 py-2 rounded">
+                Filter
+            </button>
+
+            <a href="{{ route('ideas.index') }}"
+                class="bg-gray-200 px-4 py-2 rounded">
+                Reset
+            </a>
+
         </form>
 
         {{-- ================= STATUS CARDS ================= --}}
-        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4 bg-white px-2 py-2 rounded">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-4">
 
             {{-- Card --}}
             <a href="{{ route('ideas.index') }}"
@@ -130,7 +122,43 @@
 
         </div>
 
+        {{-- ================= HEADER ================= --}}
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
+            {{-- Button --}}
+            <a href="{{ route('ideas.create') }}"
+                class="w-full lg:w-auto text-center px-4 py-2 bg-green-600 text-white rounded-lg">
+                Submit New Idea
+            </a>
+
+            <!-- {{-- Search --}}
+            <form method="GET"
+                action="{{ route('ideas.index') }}"
+                class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+
+                <input type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search ideas..."
+                    class="border px-3 py-2 rounded w-full sm:w-64">
+
+                @if(request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+                @endif
+
+                <div class="flex gap-3">
+                    <button class="flex-1 sm:flex-none bg-indigo-600 text-white px-4 py-2 rounded">
+                        Search
+                    </button>
+
+                    <a href="{{ route('ideas.index') }}"
+                        class="flex-1 sm:flex-none bg-gray-200 px-4 py-2 rounded text-center">
+                        Reset
+                    </a>
+                </div>
+            </form> -->
+
+        </div>
 
         {{-- ================= TABLE ================= --}}
         <div class="bg-white rounded-xl shadow overflow-hidden">
@@ -143,29 +171,10 @@
                     <thead class="bg-gray-100 text-gray-600 text-xs uppercase">
                         <tr>
                             <th class="px-3 py-2 sm:px-4 border">#</th>
-                            <th class="px-3 py-2 border">
-                                <a href="{{ route('ideas.index', array_merge(request()->all(), ['sort' => 'title', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    Title
-                                </a>
-                            </th>
-
-                            <th class="px-3 py-2 border">
-                                <a href="{{ route('ideas.index', array_merge(request()->all(), ['sort' => 'user', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    Submitted By
-                                </a>
-                            </th>
-
-                            <th class="px-3 py-2 border">
-                                <a href="{{ route('ideas.index', array_merge(request()->all(), ['sort' => 'status', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    Status
-                                </a>
-                            </th>
-
-                            <th class="px-3 py-2 border">
-                                <a href="{{ route('ideas.index', array_merge(request()->all(), ['sort' => 'date', 'direction' => request('direction') == 'asc' ? 'desc' : 'asc'])) }}">
-                                    Date
-                                </a>
-                            </th>
+                            <th class="px-3 py-2 sm:px-4 border">Title</th>
+                            <th class="px-3 py-2 sm:px-4 border">Submitted By</th>
+                            <th class="px-3 py-2 sm:px-4 border">Status</th>
+                            <th class="px-3 py-2 sm:px-4 border">Date</th>
                             <th class="px-3 py-2 sm:px-4 border">Actions</th>
                         </tr>
                     </thead>
@@ -206,35 +215,12 @@
                             <td class="px-3 py-2 sm:px-4 border">
                                 <div class="flex flex-wrap gap-2 text-sm">
 
-                                    {{-- SUBMITTED CASE --}}
-                                    @if($idea->status === \App\Enums\IdeaStatus::Submitted)
-
-                                    {{-- Admin / Team Lead → Review --}}
-                                    @can('review', $idea)
                                     <a href="{{ route('ideas.show', $idea) }}"
-                                        class="text-blue-600">Review</a>
-                                    @endcan
+                                        class="text-gray-600">View</a>
 
-                                    {{-- Owner (Employee) → View --}}
-                                    @can('view', $idea)
-                                    @cannot('review', $idea)
-                                    <a href="{{ route('ideas.show', $idea) }}"
-                                        class="text-blue-600">View</a>
-                                    @endcannot
-                                    @endcan
-
-                                    @else
-                                    {{-- 🔹 OTHER STATUS → normal View --}}
-                                    @can('view', $idea)
-                                    <a href="{{ route('ideas.show', $idea) }}"
-                                        class="text-blue-600">View</a>
-                                    @endcan
-                                    @endif
-
-                                    {{-- ✏️ Edit --}}
                                     @can('update', $idea)
                                     <a href="{{ route('ideas.edit', $idea) }}"
-                                        class="text-blue-600">Edit</a>
+                                        class="text-green-600">Edit</a>
                                     @endcan
 
                                 </div>

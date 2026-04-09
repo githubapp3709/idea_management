@@ -7,34 +7,18 @@
 
 @php use Illuminate\Support\Str; @endphp
 
-<!-- 
-@if ($errors->any())
-<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-    <strong class="font-bold">Whoops!</strong>
-    <span class="block">There were some problems with your input.</span>
-
-    <ul class="mt-2 list-disc list-inside text-sm">
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif -->
-
-
-
-
-<div class="max-w-6xl mx-auto bg-white p-8 rounded-2xl shadow">
+<div class="max-w-6xl mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow">
 
     <form method="POST"
         action="{{ route('ideas.store') }}"
         enctype="multipart/form-data">
         @csrf
 
-        <div class="grid grid-cols-3 gap-8">
+        {{-- ================= MAIN GRID ================= --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
-            {{-- LEFT SECTION --}}
-            <div class="col-span-2 space-y-6">
+            {{-- ================= LEFT SECTION ================= --}}
+            <div class="lg:col-span-2 space-y-6">
 
                 {{-- Title --}}
                 <div>
@@ -42,9 +26,10 @@
                     <input type="text"
                         name="title"
                         value="{{ old('title') }}"
-                        class="w-full border px-4 py-3 rounded-lg">
+                        class="w-full border px-3 py-2 sm:px-4 sm:py-3 rounded-lg">
+
                     @error('title')
-                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -53,38 +38,39 @@
                     <label class="font-semibold">Description <span class="text-red-500">*</span></label>
                     <textarea name="description"
                         rows="5"
-                        class="w-full border px-4 py-3 rounded-lg">{{ old('description') }}</textarea>
+                        class="w-full border px-3 py-2 sm:px-4 sm:py-3 rounded-lg">{{ old('description') }}</textarea>
+
                     @error('description')
-                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- SWOT --}}
                 <div>
                     <label class="font-semibold">SWOT Analysis (Optional)</label>
-
                     <textarea name="swot"
                         rows="4"
                         placeholder="Strengths, Weaknesses, Opportunities, Threats..."
-                        class="w-full border px-4 py-3 rounded-lg">{{ old('swot') }}</textarea>
+                        class="w-full border px-3 py-2 sm:px-4 sm:py-3 rounded-lg">{{ old('swot') }}</textarea>
+
                     @error('swot')
-                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Category & Impact --}}
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+
+                    {{-- Category --}}
                     <div>
                         <label>Category <span class="text-red-500">*</span></label>
-                        <select name="category" class="w-full border px-4 py-3 rounded-lg">
+                        <select name="category"
+                            class="w-full border px-3 py-2 sm:px-4 sm:py-3 rounded-lg">
                             <option value="">Select Category</option>
 
                             <option value="HR" {{ old('category', $idea->category ?? '') == 'HR' ? 'selected' : '' }}>HR</option>
-
                             <option value="Tech" {{ old('category', $idea->category ?? '') == 'Tech' ? 'selected' : '' }}>Tech</option>
-
                             <option value="Process" {{ old('category', $idea->category ?? '') == 'Process' ? 'selected' : '' }}>Process</option>
-
                             <option value="Sales" {{ old('category', $idea->category ?? '') == 'Sales' ? 'selected' : '' }}>Sales</option>
                         </select>
 
@@ -93,23 +79,25 @@
                         @enderror
                     </div>
 
+                    {{-- Impact --}}
                     <div>
                         <label>Impact Level <span class="text-red-500">*</span></label>
-                        <div class="flex gap-4 mt-2">
 
-                            <label>
+                        <div class="flex flex-wrap gap-4 mt-2 text-sm">
+
+                            <label class="flex items-center gap-2">
                                 <input type="radio" name="impact_level" value="low"
                                     {{ old('impact_level', $idea->impact_level ?? '') == 'low' ? 'checked' : '' }}>
                                 Low
                             </label>
 
-                            <label>
+                            <label class="flex items-center gap-2">
                                 <input type="radio" name="impact_level" value="medium"
                                     {{ old('impact_level', $idea->impact_level ?? '') == 'medium' ? 'checked' : '' }}>
                                 Medium
                             </label>
 
-                            <label>
+                            <label class="flex items-center gap-2">
                                 <input type="radio" name="impact_level" value="high"
                                     {{ old('impact_level', $idea->impact_level ?? '') == 'high' ? 'checked' : '' }}>
                                 High
@@ -124,33 +112,31 @@
 
                 </div>
 
-
                 {{-- Attachments --}}
-                <div class="border-2 border-dashed rounded-xl p-6 text-center">
-                    <p class="font-semibold mb-2">
-                        Upload Attachments (Max 5)
-                    </p>
+                <div class="border-2 border-dashed rounded-xl p-4 sm:p-6 text-center">
+                    <p class="font-semibold mb-2">Upload Attachments (Max 5)</p>
 
-                    <p class="text-sm text-gray-500 mb-2">
-                        Supported: Images, Videos, Documents (PDF, DOC, etc.)
+                    <p class="text-sm text-gray-500 mb-3">
+                        Supported: Images, Videos, Documents
                     </p>
 
                     <input type="file"
                         name="attachments[]"
                         multiple
-                        class="w-full">
+                        class="w-full text-sm">
 
                     @error('attachments.*')
-                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
                     @enderror
                 </div>
 
             </div>
 
-            {{-- RIGHT SIDEBAR --}}
+            {{-- ================= RIGHT SIDEBAR ================= --}}
             <div class="space-y-6">
 
-                <div class="bg-yellow-50 p-6 rounded-xl shadow-sm">
+                {{-- Guidelines --}}
+                <div class="bg-yellow-50 p-4 sm:p-6 rounded-xl shadow-sm">
                     <h3 class="font-semibold mb-3">Idea Guidelines</h3>
                     <ul class="text-sm space-y-2 text-gray-600">
                         <li>• Be clear and specific</li>
@@ -160,81 +146,59 @@
                     </ul>
                 </div>
 
-
-
                 {{-- Review Process --}}
-                <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
 
-                    <h3 class="font-semibold mb-4 flex items-center gap-2">
-                        🔄 Review Process
-                    </h3>
+                    <h3 class="font-semibold mb-4">🔄 Review Process</h3>
 
-                    <div class="flex items-center justify-between text-sm">
+                    <div class="flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
 
-                        <div class="text-center">
-                            <div class="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center mx-auto">1</div>
-                            <p class="mt-2 text-xs">Submitted</p>
+                        @foreach(['Submitted','Review','Feedback','Final'] as $index => $step)
+                        <div class="text-center flex-1">
+                            <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center
+                                {{ ['bg-purple-500','bg-blue-500','bg-yellow-500','bg-green-500'][$index] }} text-white">
+                                {{ $index+1 }}
+                            </div>
+                            <p class="mt-2">{{ $step }}</p>
                         </div>
-
-                        <span class="text-gray-400">→</span>
-
-                        <div class="text-center">
-                            <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto">2</div>
-                            <p class="mt-2 text-xs">Review</p>
-                        </div>
-
-                        <span class="text-gray-400">→</span>
-
-                        <div class="text-center">
-                            <div class="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center mx-auto">3</div>
-                            <p class="mt-2 text-xs">Feedback</p>
-                        </div>
-
-                        <span class="text-gray-400">→</span>
-
-                        <div class="text-center">
-                            <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto">4</div>
-                            <p class="mt-2 text-xs">Final</p>
-                        </div>
+                        @endforeach
 
                     </div>
+
                 </div>
 
-
                 {{-- Previous Submissions --}}
-                <div class="bg-white p-6 rounded-xl shadow-sm">
+                <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm">
 
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-semibold">Previous Submissions</h3>
+                        <h3 class="font-semibold">Previous</h3>
 
                         <a href="{{ route('ideas.index') }}"
-                            class="text-sm text-indigo-600 hover:underline">
+                            class="text-sm text-indigo-600">
                             View All
                         </a>
                     </div>
 
-                    <div class="space-y-4 text-sm">
+                    <div class="space-y-3 text-sm">
 
                         @forelse($previousIdeas as $idea)
+                        <div class="flex justify-between items-center gap-2">
 
-                        <div class="flex justify-between items-center">
-
-                            <div>
-                                <p class="font-medium">
+                            <div class="min-w-0">
+                                <p class="font-medium truncate max-w-[150px]">
                                     {{ Str::limit($idea->title, 25) }}
                                 </p>
-
                                 <p class="text-xs text-gray-500">
                                     {{ $idea->created_at->format('M d, Y') }}
                                 </p>
                             </div>
 
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold
-                    @if($idea->status->value === 'approved') bg-green-100 text-green-700
-                    @elseif($idea->status->value === 'rejected') bg-red-100 text-red-700
-                    @elseif($idea->status->value === 'submitted') bg-purple-100 text-purple-700
-                    @else bg-gray-100 text-gray-700
-                    @endif">
+                            <span class="px-2 py-1 rounded text-xs
+                                @if($idea->status->value === 'approved') bg-green-100 text-green-700
+                                @elseif($idea->status->value === 'rejected') bg-red-100 text-red-700
+                                @elseif($idea->status->value === 'submitted') bg-purple-100 text-purple-700
+                                @else bg-gray-100 text-gray-700
+                                @endif">
 
                                 {{ ucfirst($idea->status->value) }}
 
@@ -243,30 +207,27 @@
                         </div>
 
                         @empty
-                        <p class="text-gray-400 text-sm">
-                            No previous submissions.
-                        </p>
+                        <p class="text-gray-400 text-sm">No previous submissions.</p>
                         @endforelse
 
                     </div>
 
                 </div>
 
-
             </div>
 
         </div>
 
-        {{-- Buttons --}}
-        <div class="flex justify-end gap-4 mt-8">
+        {{-- ================= BUTTONS ================= --}}
+        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-8">
 
             <a href="{{ route('ideas.index') }}"
-                class="px-6 py-2 bg-gray-200 rounded-lg">
+                class="w-full sm:w-auto text-center px-4 py-2 bg-gray-200 rounded-lg">
                 Cancel
             </a>
 
             <button type="submit"
-                class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                class="w-full sm:w-auto px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
                 Save Draft
             </button>
 

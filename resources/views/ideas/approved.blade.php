@@ -5,105 +5,124 @@
 
 @section('content')
 
-<div class="max-w-6xl mx-auto">
+<div class="max-w-6xl mx-auto space-y-6">
 
-    {{-- SEARCH --}}
-    <form method="GET" class="mb-6 flex flex-wrap gap-3 items-end">
+    {{-- ================= SEARCH / FILTER ================= --}}
+    <form method="GET" class="flex flex-col sm:flex-row gap-3 mb-6">
 
-    {{-- Search --}}
-    <input type="text"
-           name="search"
-           value="{{ request('search') }}"
-           placeholder="Search ideas..."
-           class="border px-4 py-2 rounded w-64">
+        {{-- Search --}}
+        <input type="text"
+            name="search"
+            value="{{ request('search') }}"
+            placeholder="Search ideas..." title="Search ideas..."
+            class="app-input">
 
-    {{-- From Date --}}
-    <div>
-        <label class="text-xs text-gray-500">From</label>
-        <input type="date"
-               name="from_date"
-               value="{{ request('from_date') }}"
-               class="border px-3 py-2 rounded">
-    </div>
 
-    {{-- To Date --}}
-    <div>
-        <label class="text-xs text-gray-500">To</label>
-        <input type="date"
-               name="to_date"
-               value="{{ request('to_date') }}"
-               class="border px-3 py-2 rounded">
-    </div>
+        <div class="flex gap-3 w-full sm:w-auto">
+            {{-- From Date --}}
+            <div class="w-full sm:w-auto">
+                
+                <input type="date"
+                    name="from_date"
+                    value="{{ request('from_date') }}"
+                    class="app-input" title="From">
+            </div>
 
-    {{-- Buttons --}}
-    <button class="bg-indigo-600 text-white px-4 py-2 rounded">
-        Filter
-    </button>
+            {{-- To Date --}}
+            <div class="w-full sm:w-auto">
+               
+                <input type="date"
+                    name="to_date"
+                    value="{{ request('to_date') }}"
+                    class="app-input" title="To">
+            </div>
+        </div>
+        {{-- Buttons --}}
+        <div class="flex gap-3 w-full sm:w-auto">
 
-    <a href="{{ route('ideas.approved') }}"
-       class="bg-gray-200 px-4 py-2 rounded">
-        Reset
-    </a>
+            <button class="flex-1 sm:flex-none bg-indigo-600 text-white px-4 py-2 rounded">
+                Filter
+            </button>
 
-</form>
+            <a href="{{ route('ideas.approved') }}"
+                class="flex-1 sm:flex-none bg-gray-200 px-4 py-2 rounded text-center">
+                Reset
+            </a>
 
-    {{-- TABLE --}}
+        </div>
+
+    </form>
+
+    {{-- ================= TABLE ================= --}}
     <div class="bg-white rounded-xl shadow overflow-hidden">
 
-        <table class="min-w-full text-sm">
+        <div class="overflow-x-auto">
 
-            <thead class="bg-lime-400 text-gray-600 uppercase text-xs">
-                <tr>
-                    <th class="px-6 py-3 text-left border border-gray-300">#</th>
-                    <th class="px-6 py-3 text-left border border-gray-300">Title</th>
-                    <th class="px-6 py-3 text-left border border-gray-300">User</th>
-                    <th class="px-6 py-3 text-left border border-gray-300">Approved At</th>
-                    <th class="px-6 py-3 text-left border border-gray-300">Action</th>
-                </tr>
-            </thead>
+            <table class="min-w-full text-sm">
 
-            <tbody class="divide-y">
+                {{-- Header --}}
+                <thead class="bg-lime-400 text-gray-700 text-xs uppercase">
+                    <tr>
+                        <th class="px-3 py-2 sm:px-4 border">#</th>
+                        <th class="px-3 py-2 sm:px-4 border">Title</th>
+                        <th class="px-3 py-2 sm:px-4 border">User</th>
+                        <th class="px-3 py-2 sm:px-4 border">Approved</th>
+                        <th class="px-3 py-2 sm:px-4 border">Action</th>
+                    </tr>
+                </thead>
 
-                @forelse($ideas as $idea)
-                <tr>
+                {{-- Body --}}
+                <tbody class="divide-y">
 
-                    <td class="px-6 py-4 border border-gray-300">
-                        {{ $ideas->firstItem() + $loop->index }}
-                    </td>
+                    @forelse($ideas as $idea)
+                    <tr>
 
-                    <td class="px-6 py-4 border border-gray-300">
-                        {{ $idea->title }}
-                    </td>
+                        {{-- Index --}}
+                        <td class="px-3 py-2 sm:px-4 border text-center">
+                            {{ $ideas->firstItem() + $loop->index }}
+                        </td>
 
-                    <td class="px-6 py-4 border border-gray-300">
-                        {{ $idea->user->name }}
-                    </td>
+                        {{-- Title --}}
+                        <td class="px-3 py-2 sm:px-4 border max-w-[150px] truncate">
+                            {{ $idea->title }}
+                        </td>
 
-                    <td class="px-6 py-4 border border-gray-300">
-                        {{ $idea->updated_at->format('d M Y') }}
-                    </td>
+                        {{-- User --}}
+                        <td class="px-3 py-2 sm:px-4 border">
+                            {{ $idea->user->name }}
+                        </td>
 
-                    <td class="px-6 py-4 border border-gray-300">
-                        <a href="{{ route('ideas.show', $idea) }}"
-                           class="text-indigo-600 hover:underline">
-                            View
-                        </a>
-                    </td>
+                        {{-- Date --}}
+                        <td class="px-3 py-2 sm:px-4 border">
+                            {{ $idea->updated_at->format('d M Y') }}
+                        </td>
 
-                </tr>
+                        {{-- Action --}}
+                        <td class="px-3 py-2 sm:px-4 border">
+                            <a href="{{ route('ideas.show', $idea) }}"
+                                class="text-indigo-600">
+                                View
+                            </a>
+                        </td>
 
-                @empty
-                <tr>
-                    <td colspan="5" class="text-center py-6 text-gray-500">
-                        No approved ideas found.
-                    </td>
-                </tr>
-                @endforelse
+                    </tr>
 
-            </tbody>
+                    @empty
+                    <tr>
+                        <td colspan="5"
+                            class="text-center py-6 text-gray-500">
+                            No approved ideas found.
+                        </td>
+                    </tr>
+                    @endforelse
 
-        </table>
+                </tbody>
 
+            </table>
+
+        </div>
+
+        {{-- Pagination --}}
         <div class="p-4">
             {{ $ideas->links() }}
         </div>
