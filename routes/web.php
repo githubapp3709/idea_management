@@ -12,7 +12,7 @@ use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->middleware('guest');
 
 
 Route::get('/dashboard', function () {
@@ -59,7 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 
-
+ 
     //  ---------------Employee----------------
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
     Route::get('/employee/create', [EmployeeController::class, 'create'])->name('employees.create');

@@ -48,7 +48,7 @@ class DashboardRepository
             'ideas.rewards' => function ($q) use ($request) {
                 $this->applyDateFilter($q, $request); // ✅ NOW USING COMMON FILTER
             }
-        ])
+        ]) 
             ->get()
             ->map(function ($user) {
 
@@ -195,6 +195,7 @@ class DashboardRepository
                     'name' => $user->name,
                     'total_ideas' => $user->total_ideas,
                     'total_points' => $totalPoints,
+                    'user' => $user
                 ];
             })
             ->sortByDesc('total_points')

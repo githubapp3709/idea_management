@@ -8,9 +8,8 @@ use app\Models\User;
 class EmployeesPolicy
 {
     public function viewAny(User $user): bool
-    {
-    
-        return $user->role->name === 'super_admin';
+    {    
+        return $user->role->name === 'super_admin' || $user->role->name === 'team_lead';
     }
 
     public function view(User $user): bool
@@ -32,4 +31,4 @@ class EmployeesPolicy
     {
         return $user->role->name === 'super_admin';
     }
-}
+} 

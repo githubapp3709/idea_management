@@ -8,13 +8,12 @@
 {{-- Welcome --}}
 <div class="mb-6">
     <h2 class="text-2xl font-semibold">
-        Welcome back, {{ auth()->user()->name }} 👋
+        Welcome back, {{ auth()->user()->name }} 
     </h2>
 </div>
 
 {{-- FILTER --}}
 <form method="GET" class="flex flex-col sm:flex-row gap-3 mb-6">
-
     <input type="date" name="from_date"
         value="{{ request('from_date') }}"
         class="app-input">

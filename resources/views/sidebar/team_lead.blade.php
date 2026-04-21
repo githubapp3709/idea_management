@@ -1,39 +1,23 @@
 <ul class="space-y-2 px-4">
     <li><a href="{{ route('dashboard') }}" class="menu flex items-center gap-2 {{ request()->routeIs('dashboard') 
                 ? 'bg-indigo-200 text-white shadow-md' 
-                : 'text-gray-700 hover:bg-gray-100' }}"><svg class="w-5 h-5" viewBox=" 0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0L0 6V8H1V15H4V10H7V15H15V8H16V6L14 4.5V1H11V2.25L8 0ZM9 10H12V13H9V10Z" fill="#000000" />
-            </svg>
+                : 'text-gray-700 hover:bg-gray-100' }}">
+            <img src="{{ asset('images/dashboard.png') }}" alt="">
             Dashboard</a></li>
     <li><a href="{{ route('ideas.index') }}" class="menu flex items-center gap-2 {{ request()->routeIs('ideas.index') 
                 ? 'bg-indigo-200 text-white shadow-md' 
-                : 'text-gray-700 hover:bg-gray-100' }}"><svg fill="#000000" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                class="w-5 h-5" viewBox="0 0 208 256" enable-background="new 0 0 208 256" xml:space="preserve">
-                <path d="M2,35c0,0,0,184.486,0,186c0,17.87,14.416,32.192,32.084,32.899V254H205.82v-9.288c-13.226,0-23.928-10.702-23.928-23.928
-	s10.702-23.928,23.928-23.928v-0.202V2H35.8C17.526,2,2,16.726,2,35z M172.603,220.683c0,9.389,4.038,17.87,10.298,23.928H35.397
-	c-13.226,0.101-24.029-10.702-24.029-23.928c0-12.519,9.793-22.817,22.111-23.726l149.726-0.303
-	C176.743,202.712,172.603,211.192,172.603,220.683z M88.319,152.17v-6.391h32.12v6.391H88.319z M115.622,157.021v1.606
-	c0,3.548-2.876,6.424-6.424,6.424h-9.636c-3.548,0-6.424-2.876-6.424-6.424v-1.606H115.622z M148.563,49.783l4.45,4.45
-	l-14.786,14.786l-4.45-4.45L148.563,49.783z M102.699,32.234h6.293v20.911h-6.293V32.234z M103.566,62.276
-	c18.998-0.447,34.54,14.82,34.54,33.717c0,8.943-3.481,17.073-9.162,23.11c-5.394,5.731-8.504,13.236-8.504,21.105v0.72h-13.651
-	v-28.072h6.424v-4.818H95.546v4.818h6.424v28.072H88.319v-0.718c0-7.884-3.134-15.388-8.53-21.135
-	c-5.547-5.907-8.99-13.813-9.131-22.522C70.358,78.132,85.148,62.71,103.566,62.276z M61.225,49.783L76.012,64.57l-4.45,4.45
-	L56.776,54.233L61.225,49.783z" />
-            </svg>Team Ideas</a></li>
+                : 'text-gray-700 hover:bg-gray-100' }}">
+            <img src="{{ asset('images/Team-Share-Idea.png') }}" alt="">
+            Team Ideas</a></li>
+    <li><a href="{{ route('ideas.create') }}" class="menu flex items-center gap-2 {{ request()->routeIs('ideas.create') 
+                ? 'bg-indigo-200 text-white shadow-md' 
+                : 'text-gray-700 hover:bg-gray-100' }}">
+            <img src="{{ asset('images/submit idea.png') }}" alt="">
+            Submit Idea</a>
+    </li>
     <li><a href="{{ route('ideas.approved') }}" class="menu flex items-center gap-2 {{ request()->routeIs('ideas.approved') 
                 ? 'bg-indigo-200 text-white shadow-md' 
-                : 'text-gray-700 hover:bg-gray-100' }}" >
-        <svg class="w-5 h-5" viewBox="0 -4 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                    <g id="Dribbble-Light-Preview" transform="translate(-260.000000, -4563.000000)" fill="#000000">
-                        <g id="icons" transform="translate(56.000000, 160.000000)">
-                            <path d="M216,4409.00052 C216,4410.14768 215.105,4411.07682 214,4411.07682 C212.895,4411.07682 212,4410.14768 212,4409.00052 C212,4407.85336 212.895,4406.92421 214,4406.92421 C215.105,4406.92421 216,4407.85336 216,4409.00052 M214,4412.9237 C211.011,4412.9237 208.195,4411.44744 206.399,4409.00052 C208.195,4406.55359 211.011,4405.0763 214,4405.0763 C216.989,4405.0763 219.805,4406.55359 221.601,4409.00052 C219.805,4411.44744 216.989,4412.9237 214,4412.9237 M214,4403 C209.724,4403 205.999,4405.41682 204,4409.00052 C205.999,4412.58422 209.724,4415 214,4415 C218.276,4415 222.001,4412.58422 224,4409.00052 C222.001,4405.41682 218.276,4403 214,4403" id="view_simple-[#815]">
-
-                            </path>
-                        </g>
-                    </g>
-                </g>
-            </svg>
+                : 'text-gray-700 hover:bg-gray-100' }}">
+            <img src="{{ asset('images/all ideas.png') }}" alt="">
             All Ideas</a></li>
-
 </ul>

@@ -114,12 +114,13 @@ class IdeaController extends Controller
 
     public function review(ReviewIdeaRequest $request, Idea $idea)
     {
+        
         $this->authorize('review', $idea);
 
         $this->ideaService->review(
             $idea,
             $request->action,
-            $request->remark
+            $request
         );
 
         return redirect()

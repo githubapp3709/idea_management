@@ -115,27 +115,30 @@ class IdeaService
     }
 
 
-    public function review(Idea $idea, string $action, ?string $remark = null)
+    public function review(Idea $idea, string $action, $request = null)
     {
+        
         if ($idea->status !== IdeaStatus::Submitted) {
             throw new \Exception('Idea is not ready for review');
         }
 
         match ($action) {
-            'approve' => $this->approve($idea, $remark),
-            'reject' => $this->reject($idea, $remark),
-            'send_back' => $this->sendBack($idea, $remark),
+            'approve' => $this->approve($idea, $request),
+            'reject' => $this->reject($idea, $request),
+            'send_back' => $this->sendBack($idea, $request),
         };
 
         return $idea;
     }
 
 
-    protected function approve(Idea $idea, ?string $remark)
+    protected function approve(Idea $idea, $request)
     {
         $idea->update([
             'status' => IdeaStatus::Approved,
-            'review_remark' => $remark,
+            'review_remark' => $request->remark,
+            'impact_level' => $request->impact_level,
+            'category' => $request->category,
             'reviewed_by' => Auth::id(),
             'reviewed_at' => now(),
         ]);
@@ -144,11 +147,13 @@ class IdeaService
     }
 
 
-    protected function reject(Idea $idea, ?string $remark)
+    protected function reject(Idea $idea, $request)
     {
         $idea->update([
             'status' => IdeaStatus::Rejected,
-            'review_remark' => $remark,
+            'review_remark' => $request->remark,
+            'impact_level' => $request->impact_level,
+            'category' => $request->category,
             'reviewed_by' => Auth::id(),
             'reviewed_at' => now(),
         ]);
@@ -156,12 +161,15 @@ class IdeaService
         event(new IdeaRejected($idea));
     }
  
-
-    protected function sendBack(Idea $idea, ?string $remark)
+ 
+    protected function sendBack(Idea $idea, $request)
     {
+      
         $idea->update([
             'status' => IdeaStatus::Feedback,
-            'review_remark' => $remark,
+            'review_remark' => $request->remark,
+            'impact_level' => $request->impact_level,
+            'category' => $request->category,
         ]);
         event(new IdeaSentBack($idea));
     }

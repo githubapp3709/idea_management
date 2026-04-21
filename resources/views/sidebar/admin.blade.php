@@ -9,7 +9,7 @@
                 : 'text-gray-700 hover:bg-gray-100' }}">
             <img src="{{ asset('images/dashboard.png') }}" alt="">
             <span>Dashboard</span>
-        </a>
+        </a> 
     </li>
 
     {{-- Ideas --}}

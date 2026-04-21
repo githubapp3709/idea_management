@@ -176,19 +176,19 @@
                         @forelse($ideas as $idea)
                         <tr>
 
-                            <td class="px-3 py-2 sm:px-4 border">
+                            <td class="px-3 py-2 sm:px-4 border text-center">
                                 {{ $ideas->firstItem() + $loop->index }}
                             </td>
 
-                            <td class="px-3 py-2 sm:px-4 border max-w-[140px] truncate">
+                            <td class="px-3 py-2 sm:px-4 border max-w-[140px] truncate text-center">
                                 {{ $idea->title }}
                             </td>
 
-                            <td class="px-3 py-2 sm:px-4 border">
+                            <td class="px-3 py-2 sm:px-4 border text-center">
                                 {{ $idea->user->name }}
                             </td>
 
-                            <td class="px-3 py-2 sm:px-4 border">
+                            <td class="px-3 py-2 sm:px-4 border text-center">
                                 <span class="text-xs px-2 py-1 rounded
                                     @if($idea->status->value === 'approved') bg-green-100 text-green-700
                                     @elseif($idea->status->value === 'rejected') bg-red-100 text-red-700
@@ -199,12 +199,12 @@
                                 </span>
                             </td>
 
-                            <td class="px-3 py-2 sm:px-4 border">
+                            <td class="px-3 py-2 sm:px-4 border text-center">
                                 {{ $idea->submitted_at ? $idea->submitted_at->format('d M Y') : '-' }}
                             </td>
 
-                            <td class="px-3 py-2 sm:px-4 border">
-                                <div class="flex flex-wrap gap-2 text-sm">
+                            <td class="px-3 py-2 sm:px-4 border text-center">
+                                <div class="flex flex-wrap gap-2 text-sm items-center justify-center">
 
                                     {{-- SUBMITTED CASE --}}
                                     @if($idea->status === \App\Enums\IdeaStatus::Submitted)
@@ -243,7 +243,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-gray-500">
+                            <td colspan="6" class="text-center py-4 text-gray-500 text-center">
                                 No ideas found.
                             </td>
                         </tr>

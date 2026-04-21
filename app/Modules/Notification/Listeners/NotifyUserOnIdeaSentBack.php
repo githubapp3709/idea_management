@@ -2,7 +2,7 @@
 
 namespace App\Modules\Notification\Listeners;
 
-use App\Modules\Idea\Events\IdeaRejected;
+use App\Modules\Idea\Events\IdeaSentBack;
 use App\Modules\Notification\Notifications\IdeaSentBackNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
@@ -22,7 +22,7 @@ class NotifyUserOnIdeaSentBack
      */
 
  
-    public function handle(IdeaRejected $event): void
+    public function handle(IdeaSentBack $event): void
     {
         \Log::info('SendBack Listener triggered', [
             'idea_id' => $event->idea->id,

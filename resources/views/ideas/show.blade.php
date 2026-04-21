@@ -19,10 +19,10 @@
                 <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold overflow-hidden shrink-0">
 
                     @if($idea->user->profile_image ?? false)
-                        <img src="{{ asset('storage/'.$idea->user->profile_image) }}"
-                             class="w-full h-full object-cover">
+                    <img src="{{ asset('storage/'.$idea->user->profile_image) }}"
+                        class="w-full h-full object-cover">
                     @else
-                        {{ strtoupper(substr($idea->user->name,0,1)) }}
+                    {{ strtoupper(substr($idea->user->name,0,1)) }}
                     @endif
                 </div>
 
@@ -115,33 +115,33 @@
                 {{-- Images --}}
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
                     @foreach($idea->attachments->where('file_type','image') as $file)
-                        <img src="{{ asset('storage/'.$file->file_path) }}"
-                             class="w-full h-24 object-cover rounded">
+                    <img src="{{ asset('storage/'.$file->file_path) }}"
+                        class="w-full h-24 object-cover rounded">
                     @endforeach
                 </div>
 
                 {{-- Videos --}}
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 text-sm">
                     @foreach($idea->attachments->where('file_type','video') as $file)
-                        <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank">
-                            🎥 View Video
-                        </a>
+                    <a href="{{ asset('storage/'.$file->file_path) }}" target="_blank">
+                        🎥 View Video
+                    </a>
                     @endforeach
                 </div>
 
                 {{-- Documents --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                     @foreach($idea->attachments->where('file_type','document') as $file)
-                        <a href="{{ asset('storage/'.$file->file_path) }}"
-                           target="_blank"
-                           class="text-indigo-600 underline truncate">
-                            📄 {{ basename($file->file_path) }}
-                        </a>
+                    <a href="{{ asset('storage/'.$file->file_path) }}"
+                        target="_blank"
+                        class="text-indigo-600 underline truncate">
+                        📄 {{ basename($file->file_path) }}
+                    </a>
                     @endforeach
                 </div>
 
                 @else
-                    <p class="text-gray-500">No attachments available.</p>
+                <p class="text-gray-500">No attachments available.</p>
                 @endif
             </div>
 
@@ -198,15 +198,63 @@
 
         <form method="POST" action="{{ route('ideas.review', $idea) }}">
             @csrf
+            <div class="flex justify-center pb-4 gap-4">
+                <div class="w-full">
+                    <label>Category *</label>
+                    <select name="category"
+                        class="w-full border px-4 py-3 rounded-lg">
+                        <option value="">Select Category</option>
+                        <option value="HR" {{ $idea->category == 'HR' ? 'selected' : '' }}>HR</option>
+                        <option value="Tech" {{ $idea->category == 'Tech' ? 'selected' : '' }}>Tech</option>
+                        <option value="Process" {{ $idea->category == 'Process' ? 'selected' : '' }}>Process</option>
+                        <option value="Sales" {{ $idea->category == 'Sales' ? 'selected' : '' }}>Sales</option>
+                    </select>
+                    @error('category')
+                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            
+                <div class="w-full">
+                    <label>Impact Level *</label>
+                    <div class="flex gap-4 mt-2">
+
+                        <label>
+                            <input type="radio"
+                                name="impact_level"
+                                value="low"
+                                {{ $idea->impact_level == 'low' ? 'checked' : '' }}>
+                            Low
+                        </label>
+
+                        <label>
+                            <input type="radio"
+                                name="impact_level"
+                                value="medium"
+                                {{ $idea->impact_level == 'medium' ? 'checked' : '' }}>
+                            Medium
+                        </label>
+
+                        <label>
+                            <input type="radio"
+                                name="impact_level"
+                                value="high"
+                                {{ $idea->impact_level == 'high' ? 'checked' : '' }}>
+                            High
+                        </label>
+
+                    </div>
+                    @error('impact_level')
+                    <p class="text-red-600 text-sm">{{ $message }}</p>
+                    @enderror
+                </div>                
+            </div>
+
             <textarea name="remark"
-                rows="3"
-                class="w-full border rounded px-3 py-2 mb-4"
-                placeholder="Enter remark..."></textarea>
+                    rows="3"
+                    class="w-full border rounded px-3 py-2 mb-4"
+                    placeholder="Enter remark..."></textarea>
 
             <div class="flex flex-col sm:flex-row gap-3">
-
                 <button name="action" value="approve"
                     class="w-full sm:w-auto bg-green-600 text-white px-4 py-2 rounded">
                     Approve
@@ -221,8 +269,9 @@
                     class="w-full sm:w-auto bg-yellow-500 text-white px-4 py-2 rounded">
                     Send Back
                 </button>
-
             </div>
+
+
         </form>
     </div>
 

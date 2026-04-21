@@ -15,7 +15,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Modules\Employee\Requests\StoreEmployeeRequest;
 use App\Modules\Employee\Requests\UpdateEmployeeRequest;
 
-
+ 
 class EmployeeController extends Controller
 {
     public function __construct(
@@ -200,8 +200,7 @@ class EmployeeController extends Controller
 
         return view('employees.show', compact(
             'user',
-            'ideasCount',
-           
+            'ideasCount',           
         ));
     }
 

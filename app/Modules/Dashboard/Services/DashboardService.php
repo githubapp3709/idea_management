@@ -17,7 +17,7 @@ class DashboardService
     {
         return $this->repo->getAdminDashboardData($request);
     } 
-
+ 
     /* ================= TEAM LEAD ================= */
 
     public function teamLead(User $user, $request)

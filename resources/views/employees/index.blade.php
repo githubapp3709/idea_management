@@ -116,7 +116,6 @@ return request()->fullUrlWithQuery([
                 </h2>
             </div>
         </a>
-
     </div>
 
     {{-- ================= IMPORT / EXPORT ================= --}}
@@ -256,10 +255,11 @@ return request()->fullUrlWithQuery([
                 <tbody>
 
                     @foreach($employees as $employee)
+                   
                     <tr class="border-t hover:bg-gray-50">
 
                         <td class="px-3 py-2 sm:px-4 border">
-                            <input type="checkbox" name="ids[]" value="{{ $employee->id }}">
+                            <input type="checkbox" class="rowCheckbox" name="ids[]" value="{{ $employee->id }}">
                         </td>
 
                         <td class="px-3 py-2 sm:px-4 border">
@@ -291,7 +291,7 @@ return request()->fullUrlWithQuery([
                         </td>
 
                         <td class="px-3 py-2 sm:px-4 border">
-                            <div class="flex flex-wrap gap-2 justify-center text-sm">
+                            <div class="flex flex-wrap gap-2 justify-center text-sm">                                
                                 <a href="{{ route('employee.show', $employee) }}" class="text-indigo-600">View</a>
                                 <a href="{{ route('employees.edit', $employee) }}" class="text-yellow-600">Edit</a>
                                 <button type="button"
@@ -302,9 +302,7 @@ return request()->fullUrlWithQuery([
 
                     </tr>
                     @endforeach
-
                 </tbody>
-
             </table>
 
         </div>
@@ -335,14 +333,12 @@ return request()->fullUrlWithQuery([
 
         if (selectAll) {
             selectAll.addEventListener('change', function() {
-
                 checkboxes.forEach(function(checkbox) {
                     checkbox.checked = selectAll.checked;
                 });
 
             });
         }
-
     });
 </script>
 
